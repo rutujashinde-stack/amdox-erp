@@ -1,15 +1,17 @@
 import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
-import { PrismaClient } from 'C:/Users/rutuja shinde/amdox-erp/packages/node_modules/.prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 const adapter = new PrismaPg({
-  connectionString: 'postgresql://amdox:amdox123@127.0.0.1:5433/amdox_erp',
+  connectionString: process.env.DATABASE_URL!,
 });
 
-const prismaClient = new PrismaClient({ adapter });
+const prismaClient = new PrismaClient({
+  adapter,
+});
 
 @Injectable()
-export class PrismaService {
+export class PrismaService implements OnModuleInit, OnModuleDestroy {
   public user = prismaClient.user;
   public tenant = prismaClient.tenant;
   public account = prismaClient.account;

@@ -6,10 +6,12 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.useGlobalPipes(new ValidationPipe({
-    whitelist: true,
-    transform: true,
-  }));
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      transform: true,
+    }),
+  );
 
   app.enableCors();
 
@@ -23,8 +25,11 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
 
-  await app.listen(3001);
-  console.log('API running on http://localhost:3001');
-  console.log('Swagger docs at http://localhost:3001/api-docs');
+  const port = process.env.PORT || 3001;
+  await app.listen(port);
+
+  console.log(`API running on port ${port}`);
+  console.log(`Swagger docs at /api-docs`);
 }
+
 bootstrap();
