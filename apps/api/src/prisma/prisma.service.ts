@@ -6,9 +6,7 @@ const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
 });
 
-const prismaClient = new PrismaClient({
-  adapter,
-});
+const prismaClient = new PrismaClient({ adapter });
 
 @Injectable()
 export class PrismaService implements OnModuleInit, OnModuleDestroy {
