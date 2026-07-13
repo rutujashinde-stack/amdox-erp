@@ -12,8 +12,11 @@ export default function AddProductPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    const token = localStorage.getItem("token");
-
+    const token = localStorage.getItem("amdox_token");
+    if (!token) {
+  alert("Please log in first.");
+  return;
+}
     try {
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/supply-chain/inventory`,
