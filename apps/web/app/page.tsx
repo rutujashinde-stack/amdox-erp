@@ -1,5 +1,4 @@
-import Sidebar from '../../components/layout/Sidebar';
-
+import Sidebar from '../components/layout/Sidebar';
 export default function SupplyChainPage() {
   return (
     <div className="flex min-h-screen bg-gray-100">
