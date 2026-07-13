@@ -42,6 +42,13 @@ export default function FinancePage() {
           >
             + Add Transaction
           </Link>
+
+          <Link
+            href="/finance/transactions"
+            className="rounded-lg bg-green-600 px-5 py-3 text-white hover:bg-green-700"
+          >
+            View Transactions
+          </Link>
         </div>
       </div>
 
