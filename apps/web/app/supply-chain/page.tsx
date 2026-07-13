@@ -1,77 +1,163 @@
-import Sidebar from '../../components/layout/Sidebar';
+'use client';
+
+import { useEffect, useState } from 'react';
+import api from '../../lib/api';
+
+interface InventoryItem {
+  id: string;
+  sku: string;
+  name: string;
+  quantity: number;
+  reorderPoint: number;
+  unitPrice: number | string;
+}
+
+interface DashboardData {
+  totalVendors?: number;
+  totalPurchaseOrders?: number;
+  totalInventoryItems?: number;
+  lowStockItems?: number;
+}
 
 export default function SupplyChainPage() {
+  const [dashboard, setDashboard] = useState<DashboardData>({});
+  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    async function loadSupplyChainData() {
+      try {
+        const [dashboardResponse, inventoryResponse] = await Promise.all([
+          api.get('/supply-chain/dashboard'),
+          api.get('/supply-chain/inventory'),
+        ]);
+
+        setDashboard(dashboardResponse.data);
+        setInventory(inventoryResponse.data);
+      } catch (err) {
+        console.error('Supply chain dashboard error:', err);
+        setError('Could not load supply chain dashboard data.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadSupplyChainData();
+  }, []);
+
+  const lowStockCount = inventory.filter(
+    (item) => item.quantity <= item.reorderPoint,
+  ).length;
+
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
+    <section className="p-8">
+      <h1 className="text-4xl font-bold">Supply Chain Dashboard</h1>
 
-      <main className="flex-1 p-8">
-        <h1 className="text-4xl font-bold text-red-600">
-          🚀 LIVE Dashboard Test
-        </h1>
+      <p className="mt-2 text-gray-600">
+        Manage inventory, suppliers, purchase orders and stock levels.
+      </p>
 
-        <p className="mt-2 text-gray-600">
-          Manage inventory, suppliers, orders and stock levels.
+      {loading && (
+        <p className="mt-8 text-gray-500">
+          Loading supply chain data...
         </p>
+      )}
 
-        <div className="mt-8 grid gap-6 md:grid-cols-4">
-          {[
-            ['Total Products', '248'],
-            ['Suppliers', '36'],
-            ['Pending Orders', '18'],
-            ['Low Stock', '7'],
-          ].map(([title, value]) => (
-            <div key={title} className="rounded-xl bg-white p-5 shadow">
-              <p className="text-gray-500">{title}</p>
-              <h2 className="mt-2 text-3xl font-bold">{value}</h2>
+      {error && (
+        <p className="mt-8 text-red-600">
+          {error}
+        </p>
+      )}
+
+      {!loading && !error && (
+        <>
+          <div className="mt-8 grid gap-6 md:grid-cols-4">
+            <div className="rounded-xl bg-white p-5 shadow">
+              <p className="text-gray-500">Inventory Items</p>
+              <h2 className="mt-2 text-3xl font-bold">
+                {dashboard.totalInventoryItems ?? inventory.length}
+              </h2>
             </div>
-          ))}
-        </div>
 
-        <div className="mt-8 rounded-xl bg-white p-6 shadow">
-          <h2 className="mb-4 text-2xl font-semibold">
-            Inventory Overview
-          </h2>
+            <div className="rounded-xl bg-white p-5 shadow">
+              <p className="text-gray-500">Suppliers</p>
+              <h2 className="mt-2 text-3xl font-bold">
+                {dashboard.totalVendors ?? 0}
+              </h2>
+            </div>
 
-          <table className="w-full">
-            <thead>
-              <tr className="bg-gray-200 text-left">
-                <th className="p-3">Product</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">Stock</th>
-                <th className="p-3">Supplier</th>
-                <th className="p-3">Status</th>
-              </tr>
-            </thead>
+            <div className="rounded-xl bg-white p-5 shadow">
+              <p className="text-gray-500">Purchase Orders</p>
+              <h2 className="mt-2 text-3xl font-bold">
+                {dashboard.totalPurchaseOrders ?? 0}
+              </h2>
+            </div>
 
-            <tbody>
-              <tr className="border-b">
-                <td className="p-3">Laptop</td>
-                <td className="p-3">Electronics</td>
-                <td className="p-3">45</td>
-                <td className="p-3">TechMart</td>
-                <td className="p-3 text-green-600">Available</td>
-              </tr>
+            <div className="rounded-xl bg-white p-5 shadow">
+              <p className="text-gray-500">Low Stock</p>
+              <h2 className="mt-2 text-3xl font-bold text-red-600">
+                {dashboard.lowStockItems ?? lowStockCount}
+              </h2>
+            </div>
+          </div>
 
-              <tr className="border-b">
-                <td className="p-3">Office Chair</td>
-                <td className="p-3">Furniture</td>
-                <td className="p-3">8</td>
-                <td className="p-3">FurniCo</td>
-                <td className="p-3 text-red-600">Low Stock</td>
-              </tr>
+          <div className="mt-8 overflow-x-auto rounded-xl bg-white p-6 shadow">
+            <h2 className="mb-4 text-2xl font-semibold">
+              Inventory Overview
+            </h2>
 
-              <tr>
-                <td className="p-3">Printer</td>
-                <td className="p-3">Electronics</td>
-                <td className="p-3">22</td>
-                <td className="p-3">PrintHub</td>
-                <td className="p-3 text-green-600">Available</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </main>
-    </div>
+            {inventory.length === 0 ? (
+              <p className="text-center text-gray-500">
+                No inventory items found.
+              </p>
+            ) : (
+              <table className="w-full border">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="border p-3">SKU</th>
+                    <th className="border p-3">Product</th>
+                    <th className="border p-3">Stock</th>
+                    <th className="border p-3">Reorder Point</th>
+                    <th className="border p-3">Price</th>
+                    <th className="border p-3">Status</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {inventory.slice(0, 5).map((item) => {
+                    const isLowStock =
+                      item.quantity <= item.reorderPoint;
+
+                    return (
+                      <tr key={item.id}>
+                        <td className="border p-3">{item.sku}</td>
+                        <td className="border p-3">{item.name}</td>
+                        <td className="border p-3">{item.quantity}</td>
+                        <td className="border p-3">
+                          {item.reorderPoint}
+                        </td>
+                        <td className="border p-3">
+                          ₹{Number(item.unitPrice).toLocaleString('en-IN')}
+                        </td>
+                        <td
+                          className={`border p-3 font-semibold ${
+                            isLowStock
+                              ? 'text-red-600'
+                              : 'text-green-600'
+                          }`}
+                        >
+                          {isLowStock ? 'Low Stock' : 'Available'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </>
+      )}
+    </section>
   );
 }
