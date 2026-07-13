@@ -49,13 +49,26 @@ export default function HrPage() {
           >
             View Payroll
           </Link>
+
+          <Link
+            href="/hr/apply-leave"
+            className="rounded-lg bg-purple-600 px-5 py-3 text-white hover:bg-purple-700"
+          >
+            + Apply Leave
+          </Link>
+
+          <Link
+            href="/hr/leaves"
+            className="rounded-lg bg-orange-600 px-5 py-3 text-white hover:bg-orange-700"
+          >
+            View Leaves
+          </Link>
         </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-4">
         <div className="rounded-xl bg-white p-5 shadow">
           <p className="text-gray-500">Employees</p>
-
           <h2 className="mt-2 text-3xl font-bold">
             {data?.totalEmployees ?? 0}
           </h2>
@@ -63,7 +76,6 @@ export default function HrPage() {
 
         <div className="rounded-xl bg-white p-5 shadow">
           <p className="text-gray-500">Payroll Records</p>
-
           <h2 className="mt-2 text-3xl font-bold">
             {data?.totalPayrolls ?? 0}
           </h2>
@@ -71,7 +83,6 @@ export default function HrPage() {
 
         <div className="rounded-xl bg-white p-5 shadow">
           <p className="text-gray-500">Pending Leaves</p>
-
           <h2 className="mt-2 text-3xl font-bold text-yellow-600">
             {data?.pendingLeaves ?? 0}
           </h2>
@@ -79,7 +90,6 @@ export default function HrPage() {
 
         <div className="rounded-xl bg-white p-5 shadow">
           <p className="text-gray-500">Approved Leaves</p>
-
           <h2 className="mt-2 text-3xl font-bold text-green-600">
             {data?.approvedLeaves ?? 0}
           </h2>
