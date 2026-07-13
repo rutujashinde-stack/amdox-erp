@@ -49,9 +49,11 @@ export default function ApplyLeavePage() {
         const data: Employee[] = await response.json();
         setEmployees(data);
 
-        if (data.length > 0) {
-          setEmployeeId(data[0].id);
-        }
+        const firstEmployee = data.at(0);
+
+if (firstEmployee) {
+  setEmployeeId(firstEmployee.id);
+}
       } catch (error) {
         console.error('Employee loading failed:', error);
         alert('Could not load employees.');
