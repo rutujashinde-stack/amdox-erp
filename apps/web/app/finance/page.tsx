@@ -28,7 +28,7 @@ export default function FinancePage() {
           </p>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
           <Link
             href="/finance/add-account"
             className="rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
@@ -48,6 +48,20 @@ export default function FinancePage() {
             className="rounded-lg bg-green-600 px-5 py-3 text-white hover:bg-green-700"
           >
             View Transactions
+          </Link>
+
+          <Link
+            href="/finance/add-invoice"
+            className="rounded-lg bg-purple-600 px-5 py-3 text-white hover:bg-purple-700"
+          >
+            + Create Invoice
+          </Link>
+
+          <Link
+            href="/finance/invoices"
+            className="rounded-lg bg-orange-600 px-5 py-3 text-white hover:bg-orange-700"
+          >
+            View Invoices
           </Link>
         </div>
       </div>
