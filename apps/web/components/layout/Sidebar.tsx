@@ -15,8 +15,7 @@ export default function Sidebar() {
   };
 
   return (
-    <aside className="sticky top-0 h-screen w-64 bg-slate-950 p-6 text-white">
-      <h1 className="mb-2 text-2xl font-bold">Amdox ERP</h1>
+<aside className="sticky top-0 z-50 h-screen w-64 shrink-0 bg-slate-950 p-6 text-white">      <h1 className="mb-2 text-2xl font-bold">Amdox ERP</h1>
       <p className="mb-8 text-sm text-slate-400">Cloud ERP Suite</p>
 
       <nav className="space-y-2">
