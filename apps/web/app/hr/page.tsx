@@ -28,17 +28,34 @@ export default function HrPage() {
           </p>
         </div>
 
-        <Link
-          href="/hr/add-employee"
-          className="rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
-        >
-          + Add Employee
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <Link
+            href="/hr/add-employee"
+            className="rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
+          >
+            + Add Employee
+          </Link>
+
+          <Link
+            href="/hr/process-payroll"
+            className="rounded-lg bg-slate-800 px-5 py-3 text-white hover:bg-slate-900"
+          >
+            Process Payroll
+          </Link>
+
+          <Link
+            href="/hr/payroll"
+            className="rounded-lg bg-green-600 px-5 py-3 text-white hover:bg-green-700"
+          >
+            View Payroll
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-4">
         <div className="rounded-xl bg-white p-5 shadow">
           <p className="text-gray-500">Employees</p>
+
           <h2 className="mt-2 text-3xl font-bold">
             {data?.totalEmployees ?? 0}
           </h2>
@@ -46,6 +63,7 @@ export default function HrPage() {
 
         <div className="rounded-xl bg-white p-5 shadow">
           <p className="text-gray-500">Payroll Records</p>
+
           <h2 className="mt-2 text-3xl font-bold">
             {data?.totalPayrolls ?? 0}
           </h2>
@@ -53,6 +71,7 @@ export default function HrPage() {
 
         <div className="rounded-xl bg-white p-5 shadow">
           <p className="text-gray-500">Pending Leaves</p>
+
           <h2 className="mt-2 text-3xl font-bold text-yellow-600">
             {data?.pendingLeaves ?? 0}
           </h2>
@@ -60,6 +79,7 @@ export default function HrPage() {
 
         <div className="rounded-xl bg-white p-5 shadow">
           <p className="text-gray-500">Approved Leaves</p>
+
           <h2 className="mt-2 text-3xl font-bold text-green-600">
             {data?.approvedLeaves ?? 0}
           </h2>
