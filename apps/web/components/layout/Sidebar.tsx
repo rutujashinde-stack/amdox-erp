@@ -37,11 +37,13 @@ export default function Sidebar() {
 
   return (
     <aside className="sticky top-0 z-50 h-screen w-64 shrink-0 bg-slate-950 p-6 text-white">
-      <Link href="/dashboard" className="block">
-        <h1 className="mb-1 cursor-pointer text-2xl font-bold transition hover:text-blue-400">
-          Amdox ERP
-        </h1>
-      </Link>
+      <button
+  type="button"
+  onClick={() => router.push('/dashboard')}
+  className="mb-1 block text-left text-2xl font-bold transition hover:text-blue-400"
+>
+  Amdox ERP
+</button>
 
       <p className="mb-8 text-sm text-slate-400">
         AI-Powered Cloud ERP Suite
