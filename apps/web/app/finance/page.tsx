@@ -28,12 +28,21 @@ export default function FinancePage() {
           </p>
         </div>
 
-        <Link
-          href="/finance/add-account"
-          className="rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
-        >
-          + Add Account
-        </Link>
+        <div className="flex gap-3">
+          <Link
+            href="/finance/add-account"
+            className="rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
+          >
+            + Add Account
+          </Link>
+
+          <Link
+            href="/finance/add-transaction"
+            className="rounded-lg bg-slate-800 px-5 py-3 text-white hover:bg-slate-900"
+          >
+            + Add Transaction
+          </Link>
+        </div>
       </div>
 
       <div className="grid gap-6 md:grid-cols-4">
