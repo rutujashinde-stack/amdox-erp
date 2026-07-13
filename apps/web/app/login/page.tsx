@@ -105,12 +105,7 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 rounded-lg bg-slate-100 p-4 text-sm text-slate-600">
-          <p className="font-semibold">Demo Credentials</p>
-          <p>Email: admin@amdox.com</p>
-          <p>Password: admin123</p>
-        </div>
-      </div>
+        
     </main>
   );
 }
