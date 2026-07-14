@@ -78,6 +78,74 @@ export default function EmployeesPage() {
     );
   };
 
+  const handleExportEmployees = () => {
+    if (filteredEmployees.length === 0) {
+      window.alert('No employee data available to export.');
+      return;
+    }
+
+    const headers = [
+      'Employee Code',
+      'First Name',
+      'Last Name',
+      'Email',
+      'Department',
+      'Designation',
+      'Salary',
+      'Status',
+      'Start Date',
+    ];
+
+    const rows = filteredEmployees.map((employee) => [
+      employee.employeeCode ?? '',
+      employee.firstName ?? '',
+      employee.lastName ?? '',
+      employee.email ?? '',
+      employee.department ?? '',
+      employee.designation ||
+        employee.position ||
+        employee.jobTitle ||
+        '',
+      employee.salary ?? '',
+      employee.status ?? '',
+      employee.startDate
+        ? new Date(employee.startDate).toLocaleDateString('en-IN')
+        : '',
+    ]);
+
+    const escapeCsvValue = (
+      value: string | number | undefined,
+    ) => {
+      const text = String(value ?? '').replace(/"/g, '""');
+      return `"${text}"`;
+    };
+
+    const csvContent = [
+      headers.map(escapeCsvValue).join(','),
+      ...rows.map((row) =>
+        row.map((value) => escapeCsvValue(value)).join(','),
+      ),
+    ].join('\n');
+
+    const blob = new Blob([`\uFEFF${csvContent}`], {
+      type: 'text/csv;charset=utf-8;',
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = `employees-${new Date()
+      .toISOString()
+      .slice(0, 10)}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <section className="p-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -85,16 +153,27 @@ export default function EmployeesPage() {
           <h1 className="text-4xl font-bold">Employees</h1>
 
           <p className="mt-2 text-gray-600">
-            View and search all employees in the HR module.
+            View, search and export all employees in the HR module.
           </p>
         </div>
 
-        <Link
-          href="/hr/add-employee"
-          className="rounded-lg bg-slate-900 px-5 py-3 font-medium text-white transition hover:bg-slate-700"
-        >
-          + Add Employee
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={handleExportEmployees}
+            disabled={filteredEmployees.length === 0}
+            className="rounded-lg bg-green-600 px-5 py-3 font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Export Employees
+          </button>
+
+          <Link
+            href="/hr/add-employee"
+            className="rounded-lg bg-slate-900 px-5 py-3 font-medium text-white transition hover:bg-slate-700"
+          >
+            + Add Employee
+          </Link>
+        </div>
       </div>
 
       <div className="mt-8 rounded-xl bg-white p-6 shadow">
