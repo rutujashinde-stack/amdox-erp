@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 import api from '../../../lib/api';
 
-iinterface Employee {
+interface Employee {
   id: string;
   employeeCode: string;
   firstName: string;
@@ -69,6 +69,15 @@ export default function EmployeesPage() {
     });
   }, [employees, search]);
 
+  const getDesignation = (employee: Employee) => {
+    return (
+      employee.designation ||
+      employee.position ||
+      employee.jobTitle ||
+      '-'
+    );
+  };
+
   return (
     <section className="p-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -94,7 +103,7 @@ export default function EmployeesPage() {
             type="search"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Search by name, code, email or department..."
+            placeholder="Search by name, code, email, department or designation..."
             className="w-full rounded-lg border border-gray-300 px-4 py-3 outline-none focus:border-slate-700 md:max-w-xl"
           />
 
@@ -179,17 +188,15 @@ export default function EmployeesPage() {
                       </td>
 
                       <td className="border p-3">
-                        {employee.designation ||
-                         employee.position ||
-                         employee.jobTitle ||
-                          '-'}
-                          </td>
+                        {getDesignation(employee)}
+                      </td>
 
                       <td className="border p-3">
-                        {employee.salary !== undefined
-                          ? `₹${Number(employee.salary).toLocaleString(
-                              'en-IN',
-                            )}`
+                        {employee.salary !== undefined &&
+                        employee.salary !== null
+                          ? `₹${Number(
+                              employee.salary,
+                            ).toLocaleString('en-IN')}`
                           : '-'}
                       </td>
 
