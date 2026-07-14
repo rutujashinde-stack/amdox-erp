@@ -37,6 +37,13 @@ export default function HrPage() {
           </Link>
 
           <Link
+            href="/hr/employees"
+            className="rounded-lg bg-cyan-600 px-5 py-3 text-white hover:bg-cyan-700"
+          >
+            View Employees
+          </Link>
+
+          <Link
             href="/hr/process-payroll"
             className="rounded-lg bg-slate-800 px-5 py-3 text-white hover:bg-slate-900"
           >
