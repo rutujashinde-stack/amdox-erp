@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import api from '../../../lib/api';
 
-interface Employee {
+iinterface Employee {
   id: string;
   employeeCode: string;
   firstName: string;
@@ -12,6 +12,8 @@ interface Employee {
   email: string;
   department?: string;
   designation?: string;
+  position?: string;
+  jobTitle?: string;
   status?: string;
   salary?: number | string;
   startDate?: string;
@@ -60,7 +62,9 @@ export default function EmployeesPage() {
         employee.employeeCode?.toLowerCase().includes(query) ||
         employee.email?.toLowerCase().includes(query) ||
         employee.department?.toLowerCase().includes(query) ||
-        employee.designation?.toLowerCase().includes(query)
+        employee.designation?.toLowerCase().includes(query) ||
+        employee.position?.toLowerCase().includes(query) ||
+        employee.jobTitle?.toLowerCase().includes(query)
       );
     });
   }, [employees, search]);
@@ -175,8 +179,11 @@ export default function EmployeesPage() {
                       </td>
 
                       <td className="border p-3">
-                        {employee.designation || '-'}
-                      </td>
+                        {employee.designation ||
+                         employee.position ||
+                         employee.jobTitle ||
+                          '-'}
+                          </td>
 
                       <td className="border p-3">
                         {employee.salary !== undefined
