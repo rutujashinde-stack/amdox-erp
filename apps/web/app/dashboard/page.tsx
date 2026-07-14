@@ -288,15 +288,15 @@ export default function DashboardPage() {
       <section className="min-w-0">
         <div className="rounded-2xl bg-gradient-to-r from-slate-900 to-slate-700 p-8 text-white shadow">
           <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <h1 className="text-4xl font-bold">
-                Amdox ERP Dashboard
-              </h1>
+           <div>
+  <h1 className="text-4xl font-bold">
+    ERP Dashboard
+  </h1>
 
-              <p className="mt-2 text-slate-300">
-                Enterprise AI-Powered Cloud ERP Suite
-              </p>
-            </div>
+  <p className="mt-2 text-slate-300">
+    Enterprise Resource Planning System
+  </p>
+</div> 
 
             <button
               type="button"
