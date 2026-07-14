@@ -19,7 +19,8 @@ type StockFilter = 'ALL' | 'AVAILABLE' | 'LOW_STOCK';
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [search, setSearch] = useState('');
-  const [stockFilter, setStockFilter] = useState<StockFilter>('ALL');
+  const [stockFilter, setStockFilter] =
+    useState<StockFilter>('ALL');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -66,6 +67,70 @@ export default function ProductsPage() {
       return matchesSearch && matchesStockFilter;
     });
   }, [products, search, stockFilter]);
+
+  const handleExportProducts = () => {
+    if (filteredProducts.length === 0) {
+      window.alert('No product data available to export.');
+      return;
+    }
+
+    const headers = [
+      'SKU',
+      'Product Name',
+      'Category',
+      'Unit Price',
+      'Stock Quantity',
+      'Reorder Point',
+      'Status',
+    ];
+
+    const rows = filteredProducts.map((product) => {
+      const isLowStock =
+        Number(product.quantity) <= Number(product.reorderPoint);
+
+      return [
+        product.sku ?? '',
+        product.name ?? '',
+        product.category ?? '',
+        product.unitPrice ?? '',
+        product.quantity ?? '',
+        product.reorderPoint ?? '',
+        isLowStock ? 'Low Stock' : 'Available',
+      ];
+    });
+
+    const escapeCsvValue = (
+      value: string | number | undefined,
+    ) => {
+      const text = String(value ?? '').replace(/"/g, '""');
+      return `"${text}"`;
+    };
+
+    const csvContent = [
+      headers.map(escapeCsvValue).join(','),
+      ...rows.map((row) =>
+        row.map((value) => escapeCsvValue(value)).join(','),
+      ),
+    ].join('\n');
+
+    const blob = new Blob([`\uFEFF${csvContent}`], {
+      type: 'text/csv;charset=utf-8;',
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = url;
+    link.download = `products-${new Date()
+      .toISOString()
+      .slice(0, 10)}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+  };
 
   const handleDelete = async (id: string) => {
     const confirmed = window.confirm(
@@ -166,16 +231,27 @@ export default function ProductsPage() {
           <h1 className="text-4xl font-bold">Products</h1>
 
           <p className="mt-2 text-gray-600">
-            View, search, update and manage inventory products.
+            View, search, update, export and manage inventory products.
           </p>
         </div>
 
-        <Link
-          href="/supply-chain/add-product"
-          className="rounded-lg bg-slate-900 px-5 py-3 font-medium text-white transition hover:bg-slate-700"
-        >
-          + Add Product
-        </Link>
+        <div className="flex flex-wrap gap-3">
+          <button
+            type="button"
+            onClick={handleExportProducts}
+            disabled={filteredProducts.length === 0}
+            className="rounded-lg bg-green-600 px-5 py-3 font-medium text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Export Products
+          </button>
+
+          <Link
+            href="/supply-chain/add-product"
+            className="rounded-lg bg-slate-900 px-5 py-3 font-medium text-white transition hover:bg-slate-700"
+          >
+            + Add Product
+          </Link>
+        </div>
       </div>
 
       <div className="mt-8 rounded-xl bg-white p-6 shadow">
