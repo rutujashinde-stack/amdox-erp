@@ -12,8 +12,8 @@ import {
 import { useAuthStore } from '../../lib/authStore';
 
 export default function Sidebar() {
-  const router = useRouter();
   const pathname = usePathname();
+  const router = useRouter();
   const logout = useAuthStore((state) => state.logout);
 
   const handleLogout = () => {
@@ -36,20 +36,21 @@ export default function Sidebar() {
     }`;
 
   return (
-    <aside className="sticky top-0 z-50 h-screen w-64 shrink-0 bg-slate-950 p-6 text-white">
-      <button
-  type="button"
-  onClick={() => router.push('/dashboard')}
-  className="mb-1 block text-left text-2xl font-bold transition hover:text-blue-400"
->
-  Amdox ERP
-</button>
+    <aside className="sticky top-0 z-50 flex h-screen w-64 shrink-0 flex-col bg-slate-950 p-6 text-white">
+      <Link
+        href="/dashboard"
+        className="relative z-10 block rounded-lg p-1 hover:bg-slate-900"
+      >
+        <h1 className="text-2xl font-bold hover:text-blue-400">
+          Amdox ERP
+        </h1>
 
-      <p className="mb-8 text-sm text-slate-400">
-        AI-Powered Cloud ERP Suite
-      </p>
+        <p className="mt-1 text-sm text-slate-400">
+          AI-Powered Cloud ERP Suite
+        </p>
+      </Link>
 
-      <nav className="space-y-2">
+      <nav className="mt-8 space-y-2">
         <Link href="/dashboard" className={mainLinkClass('/dashboard')}>
           <LayoutDashboard size={20} />
           Dashboard
@@ -100,7 +101,7 @@ export default function Sidebar() {
       <button
         type="button"
         onClick={handleLogout}
-        className="absolute bottom-6 left-6 flex w-52 items-center gap-3 rounded-lg p-3 text-left transition hover:bg-red-600"
+        className="mt-auto flex items-center gap-3 rounded-lg p-3 text-left transition hover:bg-red-600"
       >
         <LogOut size={20} />
         Logout
