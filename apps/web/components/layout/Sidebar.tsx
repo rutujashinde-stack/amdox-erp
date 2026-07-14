@@ -36,11 +36,10 @@ export default function Sidebar() {
     }`;
 
   return (
-    <aside className="sticky top-0 flex h-screen w-64 shrink-0 flex-col bg-slate-950 p-6 text-white">
-      {/* ERP Logo */}
+    <aside className="sticky top-0 z-[100] flex h-screen w-64 shrink-0 flex-col bg-slate-950 p-6 text-white">
       <a
         href="/dashboard"
-        className="mb-6 block rounded-lg p-2 transition hover:bg-slate-900"
+        className="relative z-[110] mb-6 block cursor-pointer rounded-lg p-2 transition hover:bg-slate-900"
       >
         <h1 className="text-2xl font-bold hover:text-blue-400">
           Amdox ERP
@@ -51,8 +50,7 @@ export default function Sidebar() {
         </p>
       </a>
 
-      {/* Navigation */}
-      <nav className="space-y-2">
+      <nav className="relative z-[110] space-y-2">
         <Link
           href="/dashboard"
           className={mainLinkClass('/dashboard')}
@@ -109,11 +107,10 @@ export default function Sidebar() {
         </div>
       </nav>
 
-      {/* Logout */}
       <button
         type="button"
         onClick={handleLogout}
-        className="mt-auto flex items-center gap-3 rounded-lg p-3 text-left transition hover:bg-red-600"
+        className="relative z-[110] mt-auto flex items-center gap-3 rounded-lg p-3 text-left transition hover:bg-red-600"
       >
         <LogOut size={20} />
         Logout
