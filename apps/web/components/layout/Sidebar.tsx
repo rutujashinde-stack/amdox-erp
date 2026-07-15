@@ -7,6 +7,7 @@ import {
   Wallet,
   Users,
   Package,
+  Bell,
   LogOut,
 } from 'lucide-react';
 import { useAuthStore } from '../../lib/authStore';
@@ -42,12 +43,12 @@ export default function Sidebar() {
         className="relative z-[110] mb-6 block cursor-pointer rounded-lg p-2 transition hover:bg-slate-900"
       >
         <h1 className="text-2xl font-bold hover:text-blue-400">
-  ERP
-</h1>
+          ERP
+        </h1>
 
-<p className="mt-1 text-sm text-slate-400">
-  Enterprise Resource Planning System
-</p>
+        <p className="mt-1 text-sm text-slate-400">
+          Enterprise Resource Planning System
+        </p>
       </a>
 
       <nav className="relative z-[110] space-y-2">
@@ -105,6 +106,14 @@ export default function Sidebar() {
             Purchase Orders
           </Link>
         </div>
+
+        <Link
+          href="/notifications"
+          className={mainLinkClass('/notifications')}
+        >
+          <Bell size={20} />
+          Notifications
+        </Link>
       </nav>
 
       <button
