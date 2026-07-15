@@ -21,6 +21,7 @@ import {
   ArrowRight,
   Package,
   ReceiptText,
+  Sparkles,
 } from 'lucide-react';
 import AppShell from '../../components/layout/AppShell';
 import api from '../../lib/api';
@@ -112,8 +113,11 @@ function formatDate(value?: string) {
 }
 
 export default function DashboardPage() {
-  const [finance, setFinance] = useState<FinanceDashboard | null>(null);
+  const [finance, setFinance] =
+    useState<FinanceDashboard | null>(null);
+
   const [hr, setHr] = useState<HrDashboard | null>(null);
+
   const [supplyChain, setSupplyChain] =
     useState<SupplyChainDashboard | null>(null);
 
@@ -283,20 +287,110 @@ export default function DashboardPage() {
     },
   ];
 
+  const aiInsights = useMemo(() => {
+    const insights: string[] = [];
+
+    const lowStockCount = Number(
+      supplyChain?.lowStockItems ?? lowStockProducts.length,
+    );
+
+    const pendingLeaves = Number(hr?.pendingLeaves ?? 0);
+
+    const employeeCount = Number(
+      hr?.totalEmployees ?? employees.length,
+    );
+
+    const purchaseOrderCount = Number(
+      supplyChain?.totalPurchaseOrders ?? orders.length,
+    );
+
+    const transactionCount = Number(
+      finance?.totalTransactions ?? transactions.length,
+    );
+
+    const netWorth = Number(finance?.netWorth ?? 0);
+
+    if (lowStockCount > 0) {
+      insights.push(
+        `${lowStockCount} product${
+          lowStockCount === 1 ? '' : 's'
+        } require restocking. Review inventory and consider creating purchase orders.`,
+      );
+    } else {
+      insights.push(
+        'Inventory levels are currently healthy, with no low-stock alerts.',
+      );
+    }
+
+    if (pendingLeaves > 0) {
+      insights.push(
+        `${pendingLeaves} leave request${
+          pendingLeaves === 1 ? ' is' : 's are'
+        } pending review by the HR team.`,
+      );
+    } else {
+      insights.push(
+        'There are currently no pending employee leave requests.',
+      );
+    }
+
+    if (employeeCount > 0) {
+      insights.push(
+        `${employeeCount} employee${
+          employeeCount === 1 ? ' is' : 's are'
+        } currently registered in the ERP system.`,
+      );
+    }
+
+    if (purchaseOrderCount > 0) {
+      insights.push(
+        `${purchaseOrderCount} purchase order${
+          purchaseOrderCount === 1 ? ' is' : 's are'
+        } recorded in the Supply Chain module.`,
+      );
+    }
+
+    if (transactionCount > 0) {
+      insights.push(
+        `${transactionCount} finance transaction${
+          transactionCount === 1 ? ' has' : 's have'
+        } been recorded.`,
+      );
+    }
+
+    if (netWorth > 0) {
+      insights.push(
+        `The organisation's current calculated net worth is ${formatCurrency(
+          netWorth,
+        )}.`,
+      );
+    }
+
+    return insights;
+  }, [
+    finance,
+    hr,
+    supplyChain,
+    employees.length,
+    orders.length,
+    transactions.length,
+    lowStockProducts.length,
+  ]);
+
   return (
     <AppShell>
       <section className="min-w-0">
         <div className="rounded-2xl bg-gradient-to-r from-slate-900 to-slate-700 p-8 text-white shadow">
           <div className="flex flex-wrap items-center justify-between gap-4">
-           <div>
-  <h1 className="text-4xl font-bold">
-    ERP Dashboard
-  </h1>
+            <div>
+              <h1 className="text-4xl font-bold">
+                ERP Dashboard
+              </h1>
 
-  <p className="mt-2 text-slate-300">
-    Enterprise Resource Planning System
-  </p>
-</div> 
+              <p className="mt-2 text-slate-300">
+                Enterprise Resource Planning System
+              </p>
+            </div>
 
             <button
               type="button"
@@ -419,6 +513,39 @@ export default function DashboardPage() {
               </Link>
             </div>
 
+            <div className="mt-8 rounded-2xl border border-blue-200 bg-blue-50 p-6 shadow">
+              <div className="flex items-center gap-3">
+                <div className="rounded-full bg-blue-600 p-3 text-white">
+                  <Sparkles size={22} />
+                </div>
+
+                <div>
+                  <h2 className="text-xl font-bold text-blue-950">
+                    AI Business Insights
+                  </h2>
+
+                  <p className="text-sm text-blue-700">
+                    Smart recommendations generated from live ERP data.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 grid gap-3 md:grid-cols-2">
+                {aiInsights.map((insight, index) => (
+                  <div
+                    key={`${insight}-${index}`}
+                    className="rounded-xl bg-white p-4 text-slate-700 shadow-sm"
+                  >
+                    <span className="mr-2 font-bold text-blue-600">
+                      •
+                    </span>
+
+                    {insight}
+                  </div>
+                ))}
+              </div>
+            </div>
+
             <div className="mt-8 grid grid-cols-1 gap-6 xl:grid-cols-2">
               <div className="rounded-2xl bg-white p-6 shadow">
                 <h2 className="mb-4 text-xl font-bold">
@@ -431,6 +558,7 @@ export default function DashboardPage() {
                       <XAxis dataKey="name" />
                       <YAxis allowDecimals={false} />
                       <Tooltip />
+
                       <Bar
                         dataKey="value"
                         fill="#2563eb"
