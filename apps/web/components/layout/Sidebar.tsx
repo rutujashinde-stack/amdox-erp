@@ -8,6 +8,7 @@ import {
   Users,
   Package,
   Bell,
+  Activity,
   LogOut,
 } from 'lucide-react';
 import { useAuthStore } from '../../lib/authStore';
@@ -108,12 +109,12 @@ export default function Sidebar() {
         </div>
 
         <Link
-          href="/notifications"
-          className={mainLinkClass('/notifications')}
-        >
-          <Bell size={20} />
-          Notifications
-        </Link>
+  href="/audit-logs"
+  className={mainLinkClass('/audit-logs')}
+>
+  <Activity size={20} />
+  Audit Activity
+</Link>
       </nav>
 
       <button
