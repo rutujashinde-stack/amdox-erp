@@ -4,13 +4,25 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import {
+  AuditAction,
+  AuditModule,
+} from '../generated/prisma/client';
+import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class HrService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
-  async createEmployee(tenantId: string, data: any) {
+  async createEmployee(
+    tenantId: string,
+    data: any,
+    userId?: string,
+  ) {
     try {
       if (
         !data.firstName ||
@@ -21,25 +33,36 @@ export class HrService {
         data.salary === undefined ||
         !data.startDate
       ) {
-        throw new BadRequestException('Please provide all employee details.');
+        throw new BadRequestException(
+          'Please provide all employee details.',
+        );
       }
 
       const salary = Number(data.salary);
       const startDate = new Date(data.startDate);
 
       if (!Number.isFinite(salary) || salary < 0) {
-        throw new BadRequestException('Salary must be a valid positive number.');
+        throw new BadRequestException(
+          'Salary must be a valid positive number.',
+        );
       }
 
       if (Number.isNaN(startDate.getTime())) {
-        throw new BadRequestException('Start date is invalid.');
+        throw new BadRequestException(
+          'Start date is invalid.',
+        );
       }
 
-      const existingEmployee = await this.prisma.employee.findUnique({
-        where: {
-          email: data.email.trim().toLowerCase(),
-        },
-      });
+      const normalizedEmail = data.email
+        .trim()
+        .toLowerCase();
+
+      const existingEmployee =
+        await this.prisma.employee.findUnique({
+          where: {
+            email: normalizedEmail,
+          },
+        });
 
       if (existingEmployee) {
         throw new ConflictException(
@@ -48,27 +71,26 @@ export class HrService {
       }
 
       const count = await this.prisma.employee.count({
-        where: { tenantId },
+        where: {
+          tenantId,
+        },
       });
 
-      /*
-       * employeeCode is globally unique in the Prisma schema.
-       * Adding part of tenantId prevents EMP-0001 from conflicting
-       * with EMP-0001 belonging to another tenant.
-       */
-      const tenantPrefix = tenantId.replace(/-/g, '').slice(0, 6).toUpperCase();
+      const tenantPrefix = tenantId
+        .replace(/-/g, '')
+        .slice(0, 6)
+        .toUpperCase();
 
-      const employeeCode = `EMP-${tenantPrefix}-${String(count + 1).padStart(
-        4,
-        '0',
-      )}`;
+      const employeeCode = `EMP-${tenantPrefix}-${String(
+        count + 1,
+      ).padStart(4, '0')}`;
 
-      return await this.prisma.employee.create({
+      const employee = await this.prisma.employee.create({
         data: {
           employeeCode,
           firstName: data.firstName.trim(),
           lastName: data.lastName.trim(),
-          email: data.email.trim().toLowerCase(),
+          email: normalizedEmail,
           phone: data.phone?.trim() || null,
           department: data.department.trim(),
           position: data.position.trim(),
@@ -78,6 +100,33 @@ export class HrService {
           tenantId,
         },
       });
+
+      await this.auditService.createLog({
+        tenantId,
+        userId,
+        module: AuditModule.HR,
+        action: AuditAction.CREATE,
+        entityType: 'Employee',
+        entityId: employee.id,
+        description: `Employee ${employee.employeeCode} was created.`,
+        newValues: {
+          employeeCode: employee.employeeCode,
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          email: employee.email,
+          phone: employee.phone,
+          department: employee.department,
+          position: employee.position,
+          salary: Number(employee.salary),
+          startDate: employee.startDate.toISOString(),
+          status: employee.status,
+        },
+        metadata: {
+          source: 'HR Employee Management',
+        },
+      });
+
+      return employee;
     } catch (error: any) {
       console.error('CREATE EMPLOYEE ERROR:', error);
 
@@ -122,18 +171,27 @@ export class HrService {
     });
   }
 
-  async processPayroll(tenantId: string, period: string) {
-    if (!period) {
-      throw new BadRequestException('Payroll period is required.');
+  async processPayroll(
+    tenantId: string,
+    period: string,
+    userId?: string,
+  ) {
+    if (!period?.trim()) {
+      throw new BadRequestException(
+        'Payroll period is required.',
+      );
     }
 
-    const employees = await this.prisma.employee.findMany({
-      where: {
-        tenantId,
-        status: 'ACTIVE',
-        deletedAt: null,
-      },
-    });
+    const normalizedPeriod = period.trim();
+
+    const employees =
+      await this.prisma.employee.findMany({
+        where: {
+          tenantId,
+          status: 'ACTIVE',
+          deletedAt: null,
+        },
+      });
 
     if (employees.length === 0) {
       throw new BadRequestException(
@@ -146,12 +204,13 @@ export class HrService {
         const grossSalary = Number(employee.salary);
         const tax = grossSalary * 0.2;
         const deductions = grossSalary * 0.05;
-        const netSalary = grossSalary - tax - deductions;
+        const netSalary =
+          grossSalary - tax - deductions;
 
         return this.prisma.payroll.create({
           data: {
             employeeId: employee.id,
-            period,
+            period: normalizedPeriod,
             grossSalary,
             tax,
             deductions,
@@ -163,24 +222,54 @@ export class HrService {
       }),
     );
 
+    const totalGross = payrolls.reduce(
+      (sum, payroll) =>
+        sum + Number(payroll.grossSalary),
+      0,
+    );
+
+    const totalNet = payrolls.reduce(
+      (sum, payroll) =>
+        sum + Number(payroll.netSalary),
+      0,
+    );
+
+    await this.auditService.createLog({
+      tenantId,
+      userId,
+      module: AuditModule.HR,
+      action: AuditAction.PROCESS,
+      entityType: 'PayrollRun',
+      entityId: normalizedPeriod,
+      description: `Payroll was processed for ${payrolls.length} employees for period ${normalizedPeriod}.`,
+      newValues: {
+        period: normalizedPeriod,
+        totalEmployees: payrolls.length,
+        totalGross,
+        totalNet,
+        payrollIds: payrolls.map(
+          (payroll) => payroll.id,
+        ),
+      },
+      metadata: {
+        source: 'HR Payroll Engine',
+      },
+    });
+
     return {
-      period,
+      period: normalizedPeriod,
       totalEmployees: payrolls.length,
-      totalGross: payrolls.reduce(
-        (sum, payroll) => sum + Number(payroll.grossSalary),
-        0,
-      ),
-      totalNet: payrolls.reduce(
-        (sum, payroll) => sum + Number(payroll.netSalary),
-        0,
-      ),
+      totalGross,
+      totalNet,
       payrolls,
     };
   }
 
   async getPayrolls(tenantId: string) {
     return this.prisma.payroll.findMany({
-      where: { tenantId },
+      where: {
+        tenantId,
+      },
       include: {
         employee: true,
       },
@@ -190,7 +279,11 @@ export class HrService {
     });
   }
 
-  async applyLeave(tenantId: string, data: any) {
+  async applyLeave(
+    tenantId: string,
+    data: any,
+    userId?: string,
+  ) {
     const startDate = new Date(data.startDate);
     const endDate = new Date(data.endDate);
 
@@ -200,7 +293,9 @@ export class HrService {
       Number.isNaN(startDate.getTime()) ||
       Number.isNaN(endDate.getTime())
     ) {
-      throw new BadRequestException('Please provide valid leave details.');
+      throw new BadRequestException(
+        'Please provide valid leave details.',
+      );
     }
 
     if (endDate < startDate) {
@@ -209,34 +304,64 @@ export class HrService {
       );
     }
 
-    const employee = await this.prisma.employee.findFirst({
-      where: {
-        id: data.employeeId,
-        tenantId,
-        deletedAt: null,
-      },
-    });
+    const employee =
+      await this.prisma.employee.findFirst({
+        where: {
+          id: data.employeeId,
+          tenantId,
+          deletedAt: null,
+        },
+      });
 
     if (!employee) {
-      throw new BadRequestException('Employee was not found.');
+      throw new BadRequestException(
+        'Employee was not found.',
+      );
     }
 
-    return this.prisma.leave.create({
+    const leave = await this.prisma.leave.create({
       data: {
         employeeId: data.employeeId,
         type: data.type,
         startDate,
         endDate,
-        reason: data.reason || null,
+        reason: data.reason?.trim() || null,
         status: data.status || 'PENDING',
         tenantId,
       },
     });
+
+    await this.auditService.createLog({
+      tenantId,
+      userId,
+      module: AuditModule.HR,
+      action: AuditAction.CREATE,
+      entityType: 'Leave',
+      entityId: leave.id,
+      description: `Leave request was created for employee ${employee.employeeCode}.`,
+      newValues: {
+        employeeId: leave.employeeId,
+        employeeCode: employee.employeeCode,
+        employeeName: `${employee.firstName} ${employee.lastName}`,
+        type: leave.type,
+        startDate: leave.startDate.toISOString(),
+        endDate: leave.endDate.toISOString(),
+        reason: leave.reason,
+        status: leave.status,
+      },
+      metadata: {
+        source: 'HR Leave Management',
+      },
+    });
+
+    return leave;
   }
 
   async getLeaves(tenantId: string) {
     return this.prisma.leave.findMany({
-      where: { tenantId },
+      where: {
+        tenantId,
+      },
       include: {
         employee: true,
       },
@@ -261,7 +386,9 @@ export class HrService {
       }),
 
       this.prisma.payroll.count({
-        where: { tenantId },
+        where: {
+          tenantId,
+        },
       }),
 
       this.prisma.leave.count({

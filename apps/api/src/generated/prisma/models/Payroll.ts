@@ -269,6 +269,7 @@ export type PayrollWhereInput = {
   tenantId?: Prisma.StringFilter<"Payroll"> | string
   createdAt?: Prisma.DateTimeFilter<"Payroll"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
+  tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
 }
 
 export type PayrollOrderByWithRelationInput = {
@@ -283,6 +284,7 @@ export type PayrollOrderByWithRelationInput = {
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   employee?: Prisma.EmployeeOrderByWithRelationInput
+  tenant?: Prisma.TenantOrderByWithRelationInput
 }
 
 export type PayrollWhereUniqueInput = Prisma.AtLeast<{
@@ -300,6 +302,7 @@ export type PayrollWhereUniqueInput = Prisma.AtLeast<{
   tenantId?: Prisma.StringFilter<"Payroll"> | string
   createdAt?: Prisma.DateTimeFilter<"Payroll"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
+  tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
 }, "id">
 
 export type PayrollOrderByWithAggregationInput = {
@@ -344,9 +347,9 @@ export type PayrollCreateInput = {
   deductions: runtime.Decimal | runtime.DecimalJsLike | number | string
   netSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.PayrollStatus
-  tenantId: string
   createdAt?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutPayrollsInput
+  tenant: Prisma.TenantCreateNestedOneWithoutPayrollsInput
 }
 
 export type PayrollUncheckedCreateInput = {
@@ -370,9 +373,9 @@ export type PayrollUpdateInput = {
   deductions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayrollStatusFieldUpdateOperationsInput | $Enums.PayrollStatus
-  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutPayrollsNestedInput
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutPayrollsNestedInput
 }
 
 export type PayrollUncheckedUpdateInput = {
@@ -409,7 +412,6 @@ export type PayrollUpdateManyMutationInput = {
   deductions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayrollStatusFieldUpdateOperationsInput | $Enums.PayrollStatus
-  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -489,6 +491,48 @@ export type PayrollSumOrderByAggregateInput = {
   netSalary?: Prisma.SortOrder
 }
 
+export type PayrollCreateNestedManyWithoutTenantInput = {
+  create?: Prisma.XOR<Prisma.PayrollCreateWithoutTenantInput, Prisma.PayrollUncheckedCreateWithoutTenantInput> | Prisma.PayrollCreateWithoutTenantInput[] | Prisma.PayrollUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.PayrollCreateOrConnectWithoutTenantInput | Prisma.PayrollCreateOrConnectWithoutTenantInput[]
+  createMany?: Prisma.PayrollCreateManyTenantInputEnvelope
+  connect?: Prisma.PayrollWhereUniqueInput | Prisma.PayrollWhereUniqueInput[]
+}
+
+export type PayrollUncheckedCreateNestedManyWithoutTenantInput = {
+  create?: Prisma.XOR<Prisma.PayrollCreateWithoutTenantInput, Prisma.PayrollUncheckedCreateWithoutTenantInput> | Prisma.PayrollCreateWithoutTenantInput[] | Prisma.PayrollUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.PayrollCreateOrConnectWithoutTenantInput | Prisma.PayrollCreateOrConnectWithoutTenantInput[]
+  createMany?: Prisma.PayrollCreateManyTenantInputEnvelope
+  connect?: Prisma.PayrollWhereUniqueInput | Prisma.PayrollWhereUniqueInput[]
+}
+
+export type PayrollUpdateManyWithoutTenantNestedInput = {
+  create?: Prisma.XOR<Prisma.PayrollCreateWithoutTenantInput, Prisma.PayrollUncheckedCreateWithoutTenantInput> | Prisma.PayrollCreateWithoutTenantInput[] | Prisma.PayrollUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.PayrollCreateOrConnectWithoutTenantInput | Prisma.PayrollCreateOrConnectWithoutTenantInput[]
+  upsert?: Prisma.PayrollUpsertWithWhereUniqueWithoutTenantInput | Prisma.PayrollUpsertWithWhereUniqueWithoutTenantInput[]
+  createMany?: Prisma.PayrollCreateManyTenantInputEnvelope
+  set?: Prisma.PayrollWhereUniqueInput | Prisma.PayrollWhereUniqueInput[]
+  disconnect?: Prisma.PayrollWhereUniqueInput | Prisma.PayrollWhereUniqueInput[]
+  delete?: Prisma.PayrollWhereUniqueInput | Prisma.PayrollWhereUniqueInput[]
+  connect?: Prisma.PayrollWhereUniqueInput | Prisma.PayrollWhereUniqueInput[]
+  update?: Prisma.PayrollUpdateWithWhereUniqueWithoutTenantInput | Prisma.PayrollUpdateWithWhereUniqueWithoutTenantInput[]
+  updateMany?: Prisma.PayrollUpdateManyWithWhereWithoutTenantInput | Prisma.PayrollUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.PayrollScalarWhereInput | Prisma.PayrollScalarWhereInput[]
+}
+
+export type PayrollUncheckedUpdateManyWithoutTenantNestedInput = {
+  create?: Prisma.XOR<Prisma.PayrollCreateWithoutTenantInput, Prisma.PayrollUncheckedCreateWithoutTenantInput> | Prisma.PayrollCreateWithoutTenantInput[] | Prisma.PayrollUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.PayrollCreateOrConnectWithoutTenantInput | Prisma.PayrollCreateOrConnectWithoutTenantInput[]
+  upsert?: Prisma.PayrollUpsertWithWhereUniqueWithoutTenantInput | Prisma.PayrollUpsertWithWhereUniqueWithoutTenantInput[]
+  createMany?: Prisma.PayrollCreateManyTenantInputEnvelope
+  set?: Prisma.PayrollWhereUniqueInput | Prisma.PayrollWhereUniqueInput[]
+  disconnect?: Prisma.PayrollWhereUniqueInput | Prisma.PayrollWhereUniqueInput[]
+  delete?: Prisma.PayrollWhereUniqueInput | Prisma.PayrollWhereUniqueInput[]
+  connect?: Prisma.PayrollWhereUniqueInput | Prisma.PayrollWhereUniqueInput[]
+  update?: Prisma.PayrollUpdateWithWhereUniqueWithoutTenantInput | Prisma.PayrollUpdateWithWhereUniqueWithoutTenantInput[]
+  updateMany?: Prisma.PayrollUpdateManyWithWhereWithoutTenantInput | Prisma.PayrollUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.PayrollScalarWhereInput | Prisma.PayrollScalarWhereInput[]
+}
+
 export type PayrollCreateNestedManyWithoutEmployeeInput = {
   create?: Prisma.XOR<Prisma.PayrollCreateWithoutEmployeeInput, Prisma.PayrollUncheckedCreateWithoutEmployeeInput> | Prisma.PayrollCreateWithoutEmployeeInput[] | Prisma.PayrollUncheckedCreateWithoutEmployeeInput[]
   connectOrCreate?: Prisma.PayrollCreateOrConnectWithoutEmployeeInput | Prisma.PayrollCreateOrConnectWithoutEmployeeInput[]
@@ -535,6 +579,72 @@ export type EnumPayrollStatusFieldUpdateOperationsInput = {
   set?: $Enums.PayrollStatus
 }
 
+export type PayrollCreateWithoutTenantInput = {
+  id?: string
+  period: string
+  grossSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
+  tax: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deductions: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.PayrollStatus
+  createdAt?: Date | string
+  employee: Prisma.EmployeeCreateNestedOneWithoutPayrollsInput
+}
+
+export type PayrollUncheckedCreateWithoutTenantInput = {
+  id?: string
+  employeeId: string
+  period: string
+  grossSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
+  tax: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deductions: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.PayrollStatus
+  createdAt?: Date | string
+}
+
+export type PayrollCreateOrConnectWithoutTenantInput = {
+  where: Prisma.PayrollWhereUniqueInput
+  create: Prisma.XOR<Prisma.PayrollCreateWithoutTenantInput, Prisma.PayrollUncheckedCreateWithoutTenantInput>
+}
+
+export type PayrollCreateManyTenantInputEnvelope = {
+  data: Prisma.PayrollCreateManyTenantInput | Prisma.PayrollCreateManyTenantInput[]
+  skipDuplicates?: boolean
+}
+
+export type PayrollUpsertWithWhereUniqueWithoutTenantInput = {
+  where: Prisma.PayrollWhereUniqueInput
+  update: Prisma.XOR<Prisma.PayrollUpdateWithoutTenantInput, Prisma.PayrollUncheckedUpdateWithoutTenantInput>
+  create: Prisma.XOR<Prisma.PayrollCreateWithoutTenantInput, Prisma.PayrollUncheckedCreateWithoutTenantInput>
+}
+
+export type PayrollUpdateWithWhereUniqueWithoutTenantInput = {
+  where: Prisma.PayrollWhereUniqueInput
+  data: Prisma.XOR<Prisma.PayrollUpdateWithoutTenantInput, Prisma.PayrollUncheckedUpdateWithoutTenantInput>
+}
+
+export type PayrollUpdateManyWithWhereWithoutTenantInput = {
+  where: Prisma.PayrollScalarWhereInput
+  data: Prisma.XOR<Prisma.PayrollUpdateManyMutationInput, Prisma.PayrollUncheckedUpdateManyWithoutTenantInput>
+}
+
+export type PayrollScalarWhereInput = {
+  AND?: Prisma.PayrollScalarWhereInput | Prisma.PayrollScalarWhereInput[]
+  OR?: Prisma.PayrollScalarWhereInput[]
+  NOT?: Prisma.PayrollScalarWhereInput | Prisma.PayrollScalarWhereInput[]
+  id?: Prisma.StringFilter<"Payroll"> | string
+  employeeId?: Prisma.StringFilter<"Payroll"> | string
+  period?: Prisma.StringFilter<"Payroll"> | string
+  grossSalary?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  tax?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deductions?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netSalary?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumPayrollStatusFilter<"Payroll"> | $Enums.PayrollStatus
+  tenantId?: Prisma.StringFilter<"Payroll"> | string
+  createdAt?: Prisma.DateTimeFilter<"Payroll"> | Date | string
+}
+
 export type PayrollCreateWithoutEmployeeInput = {
   id?: string
   period: string
@@ -543,8 +653,8 @@ export type PayrollCreateWithoutEmployeeInput = {
   deductions: runtime.Decimal | runtime.DecimalJsLike | number | string
   netSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: $Enums.PayrollStatus
-  tenantId: string
   createdAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutPayrollsInput
 }
 
 export type PayrollUncheckedCreateWithoutEmployeeInput = {
@@ -585,20 +695,52 @@ export type PayrollUpdateManyWithWhereWithoutEmployeeInput = {
   data: Prisma.XOR<Prisma.PayrollUpdateManyMutationInput, Prisma.PayrollUncheckedUpdateManyWithoutEmployeeInput>
 }
 
-export type PayrollScalarWhereInput = {
-  AND?: Prisma.PayrollScalarWhereInput | Prisma.PayrollScalarWhereInput[]
-  OR?: Prisma.PayrollScalarWhereInput[]
-  NOT?: Prisma.PayrollScalarWhereInput | Prisma.PayrollScalarWhereInput[]
-  id?: Prisma.StringFilter<"Payroll"> | string
-  employeeId?: Prisma.StringFilter<"Payroll"> | string
-  period?: Prisma.StringFilter<"Payroll"> | string
-  grossSalary?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  tax?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  deductions?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  netSalary?: Prisma.DecimalFilter<"Payroll"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  status?: Prisma.EnumPayrollStatusFilter<"Payroll"> | $Enums.PayrollStatus
-  tenantId?: Prisma.StringFilter<"Payroll"> | string
-  createdAt?: Prisma.DateTimeFilter<"Payroll"> | Date | string
+export type PayrollCreateManyTenantInput = {
+  id?: string
+  employeeId: string
+  period: string
+  grossSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
+  tax: runtime.Decimal | runtime.DecimalJsLike | number | string
+  deductions: runtime.Decimal | runtime.DecimalJsLike | number | string
+  netSalary: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.PayrollStatus
+  createdAt?: Date | string
+}
+
+export type PayrollUpdateWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  period?: Prisma.StringFieldUpdateOperationsInput | string
+  grossSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  tax?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deductions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumPayrollStatusFieldUpdateOperationsInput | $Enums.PayrollStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutPayrollsNestedInput
+}
+
+export type PayrollUncheckedUpdateWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  period?: Prisma.StringFieldUpdateOperationsInput | string
+  grossSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  tax?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deductions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumPayrollStatusFieldUpdateOperationsInput | $Enums.PayrollStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PayrollUncheckedUpdateManyWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  period?: Prisma.StringFieldUpdateOperationsInput | string
+  grossSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  tax?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  deductions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  netSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumPayrollStatusFieldUpdateOperationsInput | $Enums.PayrollStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PayrollCreateManyEmployeeInput = {
@@ -621,8 +763,8 @@ export type PayrollUpdateWithoutEmployeeInput = {
   deductions?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   netSalary?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   status?: Prisma.EnumPayrollStatusFieldUpdateOperationsInput | $Enums.PayrollStatus
-  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutPayrollsNestedInput
 }
 
 export type PayrollUncheckedUpdateWithoutEmployeeInput = {
@@ -663,6 +805,7 @@ export type PayrollSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   tenantId?: boolean
   createdAt?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["payroll"]>
 
 export type PayrollSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -677,6 +820,7 @@ export type PayrollSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   tenantId?: boolean
   createdAt?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["payroll"]>
 
 export type PayrollSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -691,6 +835,7 @@ export type PayrollSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   tenantId?: boolean
   createdAt?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["payroll"]>
 
 export type PayrollSelectScalar = {
@@ -709,18 +854,22 @@ export type PayrollSelectScalar = {
 export type PayrollOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "period" | "grossSalary" | "tax" | "deductions" | "netSalary" | "status" | "tenantId" | "createdAt", ExtArgs["result"]["payroll"]>
 export type PayrollInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 export type PayrollIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 export type PayrollIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 
 export type $PayrollPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Payroll"
   objects: {
     employee: Prisma.$EmployeePayload<ExtArgs>
+    tenant: Prisma.$TenantPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1128,6 +1277,7 @@ readonly fields: PayrollFieldRefs;
 export interface Prisma__PayrollClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

@@ -1,16 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Patch,
-  Delete,
-  Param,
   Body,
-  UseGuards,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
   Request,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { SupplyChainService } from './supply-chain.service';
 
 @ApiTags('Supply Chain')
@@ -18,12 +23,16 @@ import { SupplyChainService } from './supply-chain.service';
 @UseGuards(AuthGuard('jwt'))
 @Controller('supply-chain')
 export class SupplyChainController {
-  constructor(private supplyChainService: SupplyChainService) {}
+  constructor(
+    private readonly supplyChainService: SupplyChainService,
+  ) {}
 
   @Get('dashboard')
   @ApiOperation({ summary: 'Supply chain dashboard' })
-  getDashboard(@Request() req) {
-    return this.supplyChainService.getDashboard(req.user.tenantId);
+  getDashboard(@Request() req: any) {
+    return this.supplyChainService.getDashboard(
+      req.user.tenantId,
+    );
   }
 
   @Post('vendors')
@@ -38,14 +47,23 @@ export class SupplyChainController {
       },
     },
   })
-  createVendor(@Request() req, @Body() body: any) {
-    return this.supplyChainService.createVendor(req.user.tenantId, body);
+  createVendor(
+    @Request() req: any,
+    @Body() body: any,
+  ) {
+    return this.supplyChainService.createVendor(
+      req.user.tenantId,
+      body,
+      req.user.userId ?? req.user.sub,
+    );
   }
 
   @Get('vendors')
   @ApiOperation({ summary: 'Get all vendors' })
-  getVendors(@Request() req) {
-    return this.supplyChainService.getVendors(req.user.tenantId);
+  getVendors(@Request() req: any) {
+    return this.supplyChainService.getVendors(
+      req.user.tenantId,
+    );
   }
 
   @Post('purchase-orders')
@@ -64,14 +82,23 @@ export class SupplyChainController {
       },
     },
   })
-  createPO(@Request() req, @Body() body: any) {
-    return this.supplyChainService.createPurchaseOrder(req.user.tenantId, body);
+  createPurchaseOrder(
+    @Request() req: any,
+    @Body() body: any,
+  ) {
+    return this.supplyChainService.createPurchaseOrder(
+      req.user.tenantId,
+      body,
+      req.user.userId ?? req.user.sub,
+    );
   }
 
   @Get('purchase-orders')
   @ApiOperation({ summary: 'Get all purchase orders' })
-  getPOs(@Request() req) {
-    return this.supplyChainService.getPurchaseOrders(req.user.tenantId);
+  getPurchaseOrders(@Request() req: any) {
+    return this.supplyChainService.getPurchaseOrders(
+      req.user.tenantId,
+    );
   }
 
   @Post('inventory')
@@ -87,14 +114,23 @@ export class SupplyChainController {
       },
     },
   })
-  createInventory(@Request() req, @Body() body: any) {
-    return this.supplyChainService.createInventoryItem(req.user.tenantId, body);
+  createInventory(
+    @Request() req: any,
+    @Body() body: any,
+  ) {
+    return this.supplyChainService.createInventoryItem(
+      req.user.tenantId,
+      body,
+      req.user.userId ?? req.user.sub,
+    );
   }
 
   @Get('inventory')
   @ApiOperation({ summary: 'Get inventory' })
-  getInventory(@Request() req) {
-    return this.supplyChainService.getInventory(req.user.tenantId);
+  getInventory(@Request() req: any) {
+    return this.supplyChainService.getInventory(
+      req.user.tenantId,
+    );
   }
 
   @Patch('inventory/:id')
@@ -109,23 +145,37 @@ export class SupplyChainController {
       },
     },
   })
-  updateInventory(@Request() req, @Param('id') id: string, @Body() body: any) {
+  updateInventory(
+    @Request() req: any,
+    @Param('id') id: string,
+    @Body() body: any,
+  ) {
     return this.supplyChainService.updateInventoryItem(
       req.user.tenantId,
       id,
       body,
+      req.user.userId ?? req.user.sub,
     );
   }
 
   @Delete('inventory/:id')
   @ApiOperation({ summary: 'Delete inventory item' })
-  deleteInventory(@Request() req, @Param('id') id: string) {
-    return this.supplyChainService.deleteInventoryItem(req.user.tenantId, id);
+  deleteInventory(
+    @Request() req: any,
+    @Param('id') id: string,
+  ) {
+    return this.supplyChainService.deleteInventoryItem(
+      req.user.tenantId,
+      id,
+      req.user.userId ?? req.user.sub,
+    );
   }
 
   @Get('inventory/low-stock')
   @ApiOperation({ summary: 'Get low stock alerts' })
-  getLowStock(@Request() req) {
-    return this.supplyChainService.getLowStockItems(req.user.tenantId);
+  getLowStock(@Request() req: any) {
+    return this.supplyChainService.getLowStockItems(
+      req.user.tenantId,
+    );
   }
 }

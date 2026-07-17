@@ -63,7 +63,11 @@ export const ModelName = {
   Vendor: 'Vendor',
   PurchaseOrder: 'PurchaseOrder',
   POItem: 'POItem',
-  InventoryItem: 'InventoryItem'
+  InventoryItem: 'InventoryItem',
+  AuditLog: 'AuditLog',
+  Notification: 'Notification',
+  NotificationPreference: 'NotificationPreference',
+  NotificationDelivery: 'NotificationDelivery'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -225,9 +229,9 @@ export type VendorScalarFieldEnum = (typeof VendorScalarFieldEnum)[keyof typeof 
 export const PurchaseOrderScalarFieldEnum = {
   id: 'id',
   poNumber: 'poNumber',
-  vendorId: 'vendorId',
   status: 'status',
   totalAmount: 'totalAmount',
+  vendorId: 'vendorId',
   tenantId: 'tenantId',
   createdAt: 'createdAt'
 } as const
@@ -252,6 +256,8 @@ export const InventoryItemScalarFieldEnum = {
   id: 'id',
   sku: 'sku',
   name: 'name',
+  category: 'category',
+  supplier: 'supplier',
   quantity: 'quantity',
   reorderPoint: 'reorderPoint',
   unitPrice: 'unitPrice',
@@ -263,12 +269,87 @@ export const InventoryItemScalarFieldEnum = {
 export type InventoryItemScalarFieldEnum = (typeof InventoryItemScalarFieldEnum)[keyof typeof InventoryItemScalarFieldEnum]
 
 
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  userId: 'userId',
+  module: 'module',
+  action: 'action',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  description: 'description',
+  oldValues: 'oldValues',
+  newValues: 'newValues',
+  metadata: 'metadata',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  userId: 'userId',
+  event: 'event',
+  title: 'title',
+  message: 'message',
+  data: 'data',
+  isRead: 'isRead',
+  readAt: 'readAt',
+  createdAt: 'createdAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const NotificationPreferenceScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  userId: 'userId',
+  event: 'event',
+  channel: 'channel',
+  enabled: 'enabled',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationPreferenceScalarFieldEnum = (typeof NotificationPreferenceScalarFieldEnum)[keyof typeof NotificationPreferenceScalarFieldEnum]
+
+
+export const NotificationDeliveryScalarFieldEnum = {
+  id: 'id',
+  notificationId: 'notificationId',
+  channel: 'channel',
+  destination: 'destination',
+  status: 'status',
+  attempts: 'attempts',
+  lastError: 'lastError',
+  nextRetryAt: 'nextRetryAt',
+  deliveredAt: 'deliveredAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationDeliveryScalarFieldEnum = (typeof NotificationDeliveryScalarFieldEnum)[keyof typeof NotificationDeliveryScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -285,4 +366,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

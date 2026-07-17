@@ -37,9 +37,9 @@ export type PurchaseOrderSumAggregateOutputType = {
 export type PurchaseOrderMinAggregateOutputType = {
   id: string | null
   poNumber: string | null
-  vendorId: string | null
   status: $Enums.POStatus | null
   totalAmount: runtime.Decimal | null
+  vendorId: string | null
   tenantId: string | null
   createdAt: Date | null
 }
@@ -47,9 +47,9 @@ export type PurchaseOrderMinAggregateOutputType = {
 export type PurchaseOrderMaxAggregateOutputType = {
   id: string | null
   poNumber: string | null
-  vendorId: string | null
   status: $Enums.POStatus | null
   totalAmount: runtime.Decimal | null
+  vendorId: string | null
   tenantId: string | null
   createdAt: Date | null
 }
@@ -57,9 +57,9 @@ export type PurchaseOrderMaxAggregateOutputType = {
 export type PurchaseOrderCountAggregateOutputType = {
   id: number
   poNumber: number
-  vendorId: number
   status: number
   totalAmount: number
+  vendorId: number
   tenantId: number
   createdAt: number
   _all: number
@@ -77,9 +77,9 @@ export type PurchaseOrderSumAggregateInputType = {
 export type PurchaseOrderMinAggregateInputType = {
   id?: true
   poNumber?: true
-  vendorId?: true
   status?: true
   totalAmount?: true
+  vendorId?: true
   tenantId?: true
   createdAt?: true
 }
@@ -87,9 +87,9 @@ export type PurchaseOrderMinAggregateInputType = {
 export type PurchaseOrderMaxAggregateInputType = {
   id?: true
   poNumber?: true
-  vendorId?: true
   status?: true
   totalAmount?: true
+  vendorId?: true
   tenantId?: true
   createdAt?: true
 }
@@ -97,9 +97,9 @@ export type PurchaseOrderMaxAggregateInputType = {
 export type PurchaseOrderCountAggregateInputType = {
   id?: true
   poNumber?: true
-  vendorId?: true
   status?: true
   totalAmount?: true
+  vendorId?: true
   tenantId?: true
   createdAt?: true
   _all?: true
@@ -194,9 +194,9 @@ export type PurchaseOrderGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 export type PurchaseOrderGroupByOutputType = {
   id: string
   poNumber: string
-  vendorId: string
   status: $Enums.POStatus
   totalAmount: runtime.Decimal
+  vendorId: string
   tenantId: string
   createdAt: Date
   _count: PurchaseOrderCountAggregateOutputType | null
@@ -227,24 +227,26 @@ export type PurchaseOrderWhereInput = {
   NOT?: Prisma.PurchaseOrderWhereInput | Prisma.PurchaseOrderWhereInput[]
   id?: Prisma.StringFilter<"PurchaseOrder"> | string
   poNumber?: Prisma.StringFilter<"PurchaseOrder"> | string
-  vendorId?: Prisma.StringFilter<"PurchaseOrder"> | string
   status?: Prisma.EnumPOStatusFilter<"PurchaseOrder"> | $Enums.POStatus
   totalAmount?: Prisma.DecimalFilter<"PurchaseOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId?: Prisma.StringFilter<"PurchaseOrder"> | string
   tenantId?: Prisma.StringFilter<"PurchaseOrder"> | string
   createdAt?: Prisma.DateTimeFilter<"PurchaseOrder"> | Date | string
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
+  tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   items?: Prisma.POItemListRelationFilter
 }
 
 export type PurchaseOrderOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   poNumber?: Prisma.SortOrder
-  vendorId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  vendorId?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   vendor?: Prisma.VendorOrderByWithRelationInput
+  tenant?: Prisma.TenantOrderByWithRelationInput
   items?: Prisma.POItemOrderByRelationAggregateInput
 }
 
@@ -254,21 +256,22 @@ export type PurchaseOrderWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.PurchaseOrderWhereInput | Prisma.PurchaseOrderWhereInput[]
   OR?: Prisma.PurchaseOrderWhereInput[]
   NOT?: Prisma.PurchaseOrderWhereInput | Prisma.PurchaseOrderWhereInput[]
-  vendorId?: Prisma.StringFilter<"PurchaseOrder"> | string
   status?: Prisma.EnumPOStatusFilter<"PurchaseOrder"> | $Enums.POStatus
   totalAmount?: Prisma.DecimalFilter<"PurchaseOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId?: Prisma.StringFilter<"PurchaseOrder"> | string
   tenantId?: Prisma.StringFilter<"PurchaseOrder"> | string
   createdAt?: Prisma.DateTimeFilter<"PurchaseOrder"> | Date | string
   vendor?: Prisma.XOR<Prisma.VendorScalarRelationFilter, Prisma.VendorWhereInput>
+  tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   items?: Prisma.POItemListRelationFilter
 }, "id" | "poNumber">
 
 export type PurchaseOrderOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   poNumber?: Prisma.SortOrder
-  vendorId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  vendorId?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PurchaseOrderCountOrderByAggregateInput
@@ -284,9 +287,9 @@ export type PurchaseOrderScalarWhereWithAggregatesInput = {
   NOT?: Prisma.PurchaseOrderScalarWhereWithAggregatesInput | Prisma.PurchaseOrderScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"PurchaseOrder"> | string
   poNumber?: Prisma.StringWithAggregatesFilter<"PurchaseOrder"> | string
-  vendorId?: Prisma.StringWithAggregatesFilter<"PurchaseOrder"> | string
   status?: Prisma.EnumPOStatusWithAggregatesFilter<"PurchaseOrder"> | $Enums.POStatus
   totalAmount?: Prisma.DecimalWithAggregatesFilter<"PurchaseOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId?: Prisma.StringWithAggregatesFilter<"PurchaseOrder"> | string
   tenantId?: Prisma.StringWithAggregatesFilter<"PurchaseOrder"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PurchaseOrder"> | Date | string
 }
@@ -296,18 +299,18 @@ export type PurchaseOrderCreateInput = {
   poNumber: string
   status?: $Enums.POStatus
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  tenantId: string
   createdAt?: Date | string
   vendor: Prisma.VendorCreateNestedOneWithoutPurchaseOrdersInput
+  tenant: Prisma.TenantCreateNestedOneWithoutPurchaseOrdersInput
   items?: Prisma.POItemCreateNestedManyWithoutPurchaseOrderInput
 }
 
 export type PurchaseOrderUncheckedCreateInput = {
   id?: string
   poNumber: string
-  vendorId: string
   status?: $Enums.POStatus
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId: string
   tenantId: string
   createdAt?: Date | string
   items?: Prisma.POItemUncheckedCreateNestedManyWithoutPurchaseOrderInput
@@ -318,18 +321,18 @@ export type PurchaseOrderUpdateInput = {
   poNumber?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPOStatusFieldUpdateOperationsInput | $Enums.POStatus
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vendor?: Prisma.VendorUpdateOneRequiredWithoutPurchaseOrdersNestedInput
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutPurchaseOrdersNestedInput
   items?: Prisma.POItemUpdateManyWithoutPurchaseOrderNestedInput
 }
 
 export type PurchaseOrderUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   poNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPOStatusFieldUpdateOperationsInput | $Enums.POStatus
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.POItemUncheckedUpdateManyWithoutPurchaseOrderNestedInput
@@ -338,9 +341,9 @@ export type PurchaseOrderUncheckedUpdateInput = {
 export type PurchaseOrderCreateManyInput = {
   id?: string
   poNumber: string
-  vendorId: string
   status?: $Enums.POStatus
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId: string
   tenantId: string
   createdAt?: Date | string
 }
@@ -350,16 +353,15 @@ export type PurchaseOrderUpdateManyMutationInput = {
   poNumber?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPOStatusFieldUpdateOperationsInput | $Enums.POStatus
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type PurchaseOrderUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   poNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPOStatusFieldUpdateOperationsInput | $Enums.POStatus
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -377,9 +379,9 @@ export type PurchaseOrderOrderByRelationAggregateInput = {
 export type PurchaseOrderCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   poNumber?: Prisma.SortOrder
-  vendorId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  vendorId?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -391,9 +393,9 @@ export type PurchaseOrderAvgOrderByAggregateInput = {
 export type PurchaseOrderMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   poNumber?: Prisma.SortOrder
-  vendorId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  vendorId?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -401,9 +403,9 @@ export type PurchaseOrderMaxOrderByAggregateInput = {
 export type PurchaseOrderMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   poNumber?: Prisma.SortOrder
-  vendorId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   totalAmount?: Prisma.SortOrder
+  vendorId?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -415,6 +417,48 @@ export type PurchaseOrderSumOrderByAggregateInput = {
 export type PurchaseOrderScalarRelationFilter = {
   is?: Prisma.PurchaseOrderWhereInput
   isNot?: Prisma.PurchaseOrderWhereInput
+}
+
+export type PurchaseOrderCreateNestedManyWithoutTenantInput = {
+  create?: Prisma.XOR<Prisma.PurchaseOrderCreateWithoutTenantInput, Prisma.PurchaseOrderUncheckedCreateWithoutTenantInput> | Prisma.PurchaseOrderCreateWithoutTenantInput[] | Prisma.PurchaseOrderUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.PurchaseOrderCreateOrConnectWithoutTenantInput | Prisma.PurchaseOrderCreateOrConnectWithoutTenantInput[]
+  createMany?: Prisma.PurchaseOrderCreateManyTenantInputEnvelope
+  connect?: Prisma.PurchaseOrderWhereUniqueInput | Prisma.PurchaseOrderWhereUniqueInput[]
+}
+
+export type PurchaseOrderUncheckedCreateNestedManyWithoutTenantInput = {
+  create?: Prisma.XOR<Prisma.PurchaseOrderCreateWithoutTenantInput, Prisma.PurchaseOrderUncheckedCreateWithoutTenantInput> | Prisma.PurchaseOrderCreateWithoutTenantInput[] | Prisma.PurchaseOrderUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.PurchaseOrderCreateOrConnectWithoutTenantInput | Prisma.PurchaseOrderCreateOrConnectWithoutTenantInput[]
+  createMany?: Prisma.PurchaseOrderCreateManyTenantInputEnvelope
+  connect?: Prisma.PurchaseOrderWhereUniqueInput | Prisma.PurchaseOrderWhereUniqueInput[]
+}
+
+export type PurchaseOrderUpdateManyWithoutTenantNestedInput = {
+  create?: Prisma.XOR<Prisma.PurchaseOrderCreateWithoutTenantInput, Prisma.PurchaseOrderUncheckedCreateWithoutTenantInput> | Prisma.PurchaseOrderCreateWithoutTenantInput[] | Prisma.PurchaseOrderUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.PurchaseOrderCreateOrConnectWithoutTenantInput | Prisma.PurchaseOrderCreateOrConnectWithoutTenantInput[]
+  upsert?: Prisma.PurchaseOrderUpsertWithWhereUniqueWithoutTenantInput | Prisma.PurchaseOrderUpsertWithWhereUniqueWithoutTenantInput[]
+  createMany?: Prisma.PurchaseOrderCreateManyTenantInputEnvelope
+  set?: Prisma.PurchaseOrderWhereUniqueInput | Prisma.PurchaseOrderWhereUniqueInput[]
+  disconnect?: Prisma.PurchaseOrderWhereUniqueInput | Prisma.PurchaseOrderWhereUniqueInput[]
+  delete?: Prisma.PurchaseOrderWhereUniqueInput | Prisma.PurchaseOrderWhereUniqueInput[]
+  connect?: Prisma.PurchaseOrderWhereUniqueInput | Prisma.PurchaseOrderWhereUniqueInput[]
+  update?: Prisma.PurchaseOrderUpdateWithWhereUniqueWithoutTenantInput | Prisma.PurchaseOrderUpdateWithWhereUniqueWithoutTenantInput[]
+  updateMany?: Prisma.PurchaseOrderUpdateManyWithWhereWithoutTenantInput | Prisma.PurchaseOrderUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.PurchaseOrderScalarWhereInput | Prisma.PurchaseOrderScalarWhereInput[]
+}
+
+export type PurchaseOrderUncheckedUpdateManyWithoutTenantNestedInput = {
+  create?: Prisma.XOR<Prisma.PurchaseOrderCreateWithoutTenantInput, Prisma.PurchaseOrderUncheckedCreateWithoutTenantInput> | Prisma.PurchaseOrderCreateWithoutTenantInput[] | Prisma.PurchaseOrderUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.PurchaseOrderCreateOrConnectWithoutTenantInput | Prisma.PurchaseOrderCreateOrConnectWithoutTenantInput[]
+  upsert?: Prisma.PurchaseOrderUpsertWithWhereUniqueWithoutTenantInput | Prisma.PurchaseOrderUpsertWithWhereUniqueWithoutTenantInput[]
+  createMany?: Prisma.PurchaseOrderCreateManyTenantInputEnvelope
+  set?: Prisma.PurchaseOrderWhereUniqueInput | Prisma.PurchaseOrderWhereUniqueInput[]
+  disconnect?: Prisma.PurchaseOrderWhereUniqueInput | Prisma.PurchaseOrderWhereUniqueInput[]
+  delete?: Prisma.PurchaseOrderWhereUniqueInput | Prisma.PurchaseOrderWhereUniqueInput[]
+  connect?: Prisma.PurchaseOrderWhereUniqueInput | Prisma.PurchaseOrderWhereUniqueInput[]
+  update?: Prisma.PurchaseOrderUpdateWithWhereUniqueWithoutTenantInput | Prisma.PurchaseOrderUpdateWithWhereUniqueWithoutTenantInput[]
+  updateMany?: Prisma.PurchaseOrderUpdateManyWithWhereWithoutTenantInput | Prisma.PurchaseOrderUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.PurchaseOrderScalarWhereInput | Prisma.PurchaseOrderScalarWhereInput[]
 }
 
 export type PurchaseOrderCreateNestedManyWithoutVendorInput = {
@@ -477,13 +521,72 @@ export type PurchaseOrderUpdateOneRequiredWithoutItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PurchaseOrderUpdateToOneWithWhereWithoutItemsInput, Prisma.PurchaseOrderUpdateWithoutItemsInput>, Prisma.PurchaseOrderUncheckedUpdateWithoutItemsInput>
 }
 
+export type PurchaseOrderCreateWithoutTenantInput = {
+  id?: string
+  poNumber: string
+  status?: $Enums.POStatus
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  vendor: Prisma.VendorCreateNestedOneWithoutPurchaseOrdersInput
+  items?: Prisma.POItemCreateNestedManyWithoutPurchaseOrderInput
+}
+
+export type PurchaseOrderUncheckedCreateWithoutTenantInput = {
+  id?: string
+  poNumber: string
+  status?: $Enums.POStatus
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId: string
+  createdAt?: Date | string
+  items?: Prisma.POItemUncheckedCreateNestedManyWithoutPurchaseOrderInput
+}
+
+export type PurchaseOrderCreateOrConnectWithoutTenantInput = {
+  where: Prisma.PurchaseOrderWhereUniqueInput
+  create: Prisma.XOR<Prisma.PurchaseOrderCreateWithoutTenantInput, Prisma.PurchaseOrderUncheckedCreateWithoutTenantInput>
+}
+
+export type PurchaseOrderCreateManyTenantInputEnvelope = {
+  data: Prisma.PurchaseOrderCreateManyTenantInput | Prisma.PurchaseOrderCreateManyTenantInput[]
+  skipDuplicates?: boolean
+}
+
+export type PurchaseOrderUpsertWithWhereUniqueWithoutTenantInput = {
+  where: Prisma.PurchaseOrderWhereUniqueInput
+  update: Prisma.XOR<Prisma.PurchaseOrderUpdateWithoutTenantInput, Prisma.PurchaseOrderUncheckedUpdateWithoutTenantInput>
+  create: Prisma.XOR<Prisma.PurchaseOrderCreateWithoutTenantInput, Prisma.PurchaseOrderUncheckedCreateWithoutTenantInput>
+}
+
+export type PurchaseOrderUpdateWithWhereUniqueWithoutTenantInput = {
+  where: Prisma.PurchaseOrderWhereUniqueInput
+  data: Prisma.XOR<Prisma.PurchaseOrderUpdateWithoutTenantInput, Prisma.PurchaseOrderUncheckedUpdateWithoutTenantInput>
+}
+
+export type PurchaseOrderUpdateManyWithWhereWithoutTenantInput = {
+  where: Prisma.PurchaseOrderScalarWhereInput
+  data: Prisma.XOR<Prisma.PurchaseOrderUpdateManyMutationInput, Prisma.PurchaseOrderUncheckedUpdateManyWithoutTenantInput>
+}
+
+export type PurchaseOrderScalarWhereInput = {
+  AND?: Prisma.PurchaseOrderScalarWhereInput | Prisma.PurchaseOrderScalarWhereInput[]
+  OR?: Prisma.PurchaseOrderScalarWhereInput[]
+  NOT?: Prisma.PurchaseOrderScalarWhereInput | Prisma.PurchaseOrderScalarWhereInput[]
+  id?: Prisma.StringFilter<"PurchaseOrder"> | string
+  poNumber?: Prisma.StringFilter<"PurchaseOrder"> | string
+  status?: Prisma.EnumPOStatusFilter<"PurchaseOrder"> | $Enums.POStatus
+  totalAmount?: Prisma.DecimalFilter<"PurchaseOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId?: Prisma.StringFilter<"PurchaseOrder"> | string
+  tenantId?: Prisma.StringFilter<"PurchaseOrder"> | string
+  createdAt?: Prisma.DateTimeFilter<"PurchaseOrder"> | Date | string
+}
+
 export type PurchaseOrderCreateWithoutVendorInput = {
   id?: string
   poNumber: string
   status?: $Enums.POStatus
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  tenantId: string
   createdAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutPurchaseOrdersInput
   items?: Prisma.POItemCreateNestedManyWithoutPurchaseOrderInput
 }
 
@@ -523,35 +626,22 @@ export type PurchaseOrderUpdateManyWithWhereWithoutVendorInput = {
   data: Prisma.XOR<Prisma.PurchaseOrderUpdateManyMutationInput, Prisma.PurchaseOrderUncheckedUpdateManyWithoutVendorInput>
 }
 
-export type PurchaseOrderScalarWhereInput = {
-  AND?: Prisma.PurchaseOrderScalarWhereInput | Prisma.PurchaseOrderScalarWhereInput[]
-  OR?: Prisma.PurchaseOrderScalarWhereInput[]
-  NOT?: Prisma.PurchaseOrderScalarWhereInput | Prisma.PurchaseOrderScalarWhereInput[]
-  id?: Prisma.StringFilter<"PurchaseOrder"> | string
-  poNumber?: Prisma.StringFilter<"PurchaseOrder"> | string
-  vendorId?: Prisma.StringFilter<"PurchaseOrder"> | string
-  status?: Prisma.EnumPOStatusFilter<"PurchaseOrder"> | $Enums.POStatus
-  totalAmount?: Prisma.DecimalFilter<"PurchaseOrder"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  tenantId?: Prisma.StringFilter<"PurchaseOrder"> | string
-  createdAt?: Prisma.DateTimeFilter<"PurchaseOrder"> | Date | string
-}
-
 export type PurchaseOrderCreateWithoutItemsInput = {
   id?: string
   poNumber: string
   status?: $Enums.POStatus
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
-  tenantId: string
   createdAt?: Date | string
   vendor: Prisma.VendorCreateNestedOneWithoutPurchaseOrdersInput
+  tenant: Prisma.TenantCreateNestedOneWithoutPurchaseOrdersInput
 }
 
 export type PurchaseOrderUncheckedCreateWithoutItemsInput = {
   id?: string
   poNumber: string
-  vendorId: string
   status?: $Enums.POStatus
   totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId: string
   tenantId: string
   createdAt?: Date | string
 }
@@ -577,18 +667,56 @@ export type PurchaseOrderUpdateWithoutItemsInput = {
   poNumber?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPOStatusFieldUpdateOperationsInput | $Enums.POStatus
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vendor?: Prisma.VendorUpdateOneRequiredWithoutPurchaseOrdersNestedInput
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutPurchaseOrdersNestedInput
 }
 
 export type PurchaseOrderUncheckedUpdateWithoutItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   poNumber?: Prisma.StringFieldUpdateOperationsInput | string
-  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPOStatusFieldUpdateOperationsInput | $Enums.POStatus
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PurchaseOrderCreateManyTenantInput = {
+  id?: string
+  poNumber: string
+  status?: $Enums.POStatus
+  totalAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId: string
+  createdAt?: Date | string
+}
+
+export type PurchaseOrderUpdateWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  poNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumPOStatusFieldUpdateOperationsInput | $Enums.POStatus
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  vendor?: Prisma.VendorUpdateOneRequiredWithoutPurchaseOrdersNestedInput
+  items?: Prisma.POItemUpdateManyWithoutPurchaseOrderNestedInput
+}
+
+export type PurchaseOrderUncheckedUpdateWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  poNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumPOStatusFieldUpdateOperationsInput | $Enums.POStatus
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.POItemUncheckedUpdateManyWithoutPurchaseOrderNestedInput
+}
+
+export type PurchaseOrderUncheckedUpdateManyWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  poNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumPOStatusFieldUpdateOperationsInput | $Enums.POStatus
+  totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  vendorId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -606,8 +734,8 @@ export type PurchaseOrderUpdateWithoutVendorInput = {
   poNumber?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumPOStatusFieldUpdateOperationsInput | $Enums.POStatus
   totalAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutPurchaseOrdersNestedInput
   items?: Prisma.POItemUpdateManyWithoutPurchaseOrderNestedInput
 }
 
@@ -664,12 +792,13 @@ export type PurchaseOrderCountOutputTypeCountItemsArgs<ExtArgs extends runtime.T
 export type PurchaseOrderSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   poNumber?: boolean
-  vendorId?: boolean
   status?: boolean
   totalAmount?: boolean
+  vendorId?: boolean
   tenantId?: boolean
   createdAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   items?: boolean | Prisma.PurchaseOrder$itemsArgs<ExtArgs>
   _count?: boolean | Prisma.PurchaseOrderCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["purchaseOrder"]>
@@ -677,60 +806,66 @@ export type PurchaseOrderSelect<ExtArgs extends runtime.Types.Extensions.Interna
 export type PurchaseOrderSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   poNumber?: boolean
-  vendorId?: boolean
   status?: boolean
   totalAmount?: boolean
+  vendorId?: boolean
   tenantId?: boolean
   createdAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["purchaseOrder"]>
 
 export type PurchaseOrderSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   poNumber?: boolean
-  vendorId?: boolean
   status?: boolean
   totalAmount?: boolean
+  vendorId?: boolean
   tenantId?: boolean
   createdAt?: boolean
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["purchaseOrder"]>
 
 export type PurchaseOrderSelectScalar = {
   id?: boolean
   poNumber?: boolean
-  vendorId?: boolean
   status?: boolean
   totalAmount?: boolean
+  vendorId?: boolean
   tenantId?: boolean
   createdAt?: boolean
 }
 
-export type PurchaseOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "poNumber" | "vendorId" | "status" | "totalAmount" | "tenantId" | "createdAt", ExtArgs["result"]["purchaseOrder"]>
+export type PurchaseOrderOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "poNumber" | "status" | "totalAmount" | "vendorId" | "tenantId" | "createdAt", ExtArgs["result"]["purchaseOrder"]>
 export type PurchaseOrderInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   items?: boolean | Prisma.PurchaseOrder$itemsArgs<ExtArgs>
   _count?: boolean | Prisma.PurchaseOrderCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PurchaseOrderIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 export type PurchaseOrderIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vendor?: boolean | Prisma.VendorDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 
 export type $PurchaseOrderPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "PurchaseOrder"
   objects: {
     vendor: Prisma.$VendorPayload<ExtArgs>
+    tenant: Prisma.$TenantPayload<ExtArgs>
     items: Prisma.$POItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     poNumber: string
-    vendorId: string
     status: $Enums.POStatus
     totalAmount: runtime.Decimal
+    vendorId: string
     tenantId: string
     createdAt: Date
   }, ExtArgs["result"]["purchaseOrder"]>
@@ -1128,6 +1263,7 @@ readonly fields: PurchaseOrderFieldRefs;
 export interface Prisma__PurchaseOrderClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   vendor<T extends Prisma.VendorDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VendorDefaultArgs<ExtArgs>>): Prisma.Prisma__VendorClient<runtime.Types.Result.GetResult<Prisma.$VendorPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.PurchaseOrder$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PurchaseOrder$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$POItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1160,9 +1296,9 @@ export interface Prisma__PurchaseOrderClient<T, Null = never, ExtArgs extends ru
 export interface PurchaseOrderFieldRefs {
   readonly id: Prisma.FieldRef<"PurchaseOrder", 'String'>
   readonly poNumber: Prisma.FieldRef<"PurchaseOrder", 'String'>
-  readonly vendorId: Prisma.FieldRef<"PurchaseOrder", 'String'>
   readonly status: Prisma.FieldRef<"PurchaseOrder", 'POStatus'>
   readonly totalAmount: Prisma.FieldRef<"PurchaseOrder", 'Decimal'>
+  readonly vendorId: Prisma.FieldRef<"PurchaseOrder", 'String'>
   readonly tenantId: Prisma.FieldRef<"PurchaseOrder", 'String'>
   readonly createdAt: Prisma.FieldRef<"PurchaseOrder", 'DateTime'>
 }

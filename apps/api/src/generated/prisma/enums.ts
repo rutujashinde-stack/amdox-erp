@@ -95,3 +95,68 @@ export const POStatus = {
 } as const
 
 export type POStatus = (typeof POStatus)[keyof typeof POStatus]
+
+
+export const AuditModule = {
+  AUTH: 'AUTH',
+  FINANCE: 'FINANCE',
+  HR: 'HR',
+  SUPPLY_CHAIN: 'SUPPLY_CHAIN',
+  SYSTEM: 'SYSTEM'
+} as const
+
+export type AuditModule = (typeof AuditModule)[keyof typeof AuditModule]
+
+
+export const AuditAction = {
+  LOGIN: 'LOGIN',
+  LOGOUT: 'LOGOUT',
+  CREATE: 'CREATE',
+  UPDATE: 'UPDATE',
+  DELETE: 'DELETE',
+  PROCESS: 'PROCESS',
+  APPROVE: 'APPROVE',
+  REJECT: 'REJECT',
+  EXPORT: 'EXPORT'
+} as const
+
+export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction]
+
+
+export const NotificationChannel = {
+  IN_APP: 'IN_APP',
+  EMAIL: 'EMAIL',
+  SMS: 'SMS',
+  WEBHOOK: 'WEBHOOK'
+} as const
+
+export type NotificationChannel = (typeof NotificationChannel)[keyof typeof NotificationChannel]
+
+
+export const NotificationDeliveryStatus = {
+  PENDING: 'PENDING',
+  PROCESSING: 'PROCESSING',
+  DELIVERED: 'DELIVERED',
+  FAILED: 'FAILED'
+} as const
+
+export type NotificationDeliveryStatus = (typeof NotificationDeliveryStatus)[keyof typeof NotificationDeliveryStatus]
+
+
+export const NotificationEvent = {
+  EMPLOYEE_CREATED: 'EMPLOYEE_CREATED',
+  PAYROLL_PROCESSED: 'PAYROLL_PROCESSED',
+  LEAVE_CREATED: 'LEAVE_CREATED',
+  ACCOUNT_CREATED: 'ACCOUNT_CREATED',
+  TRANSACTION_CREATED: 'TRANSACTION_CREATED',
+  INVOICE_CREATED: 'INVOICE_CREATED',
+  VENDOR_CREATED: 'VENDOR_CREATED',
+  PURCHASE_ORDER_CREATED: 'PURCHASE_ORDER_CREATED',
+  INVENTORY_CREATED: 'INVENTORY_CREATED',
+  INVENTORY_UPDATED: 'INVENTORY_UPDATED',
+  INVENTORY_DELETED: 'INVENTORY_DELETED',
+  LOW_STOCK: 'LOW_STOCK',
+  SYSTEM_ALERT: 'SYSTEM_ALERT'
+} as const
+
+export type NotificationEvent = (typeof NotificationEvent)[keyof typeof NotificationEvent]

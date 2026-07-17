@@ -30,6 +30,13 @@ export default function FinancePage() {
 
         <div className="flex flex-wrap gap-3">
           <Link
+            href="/dashboard"
+            className="rounded-lg bg-gray-700 px-5 py-3 text-white hover:bg-gray-800"
+          >
+            ← Dashboard
+          </Link>
+
+          <Link
             href="/finance/add-account"
             className="rounded-lg bg-blue-600 px-5 py-3 text-white hover:bg-blue-700"
           >

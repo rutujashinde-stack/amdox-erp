@@ -215,6 +215,7 @@ export type LeaveWhereInput = {
   tenantId?: Prisma.StringFilter<"Leave"> | string
   createdAt?: Prisma.DateTimeFilter<"Leave"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
+  tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
 }
 
 export type LeaveOrderByWithRelationInput = {
@@ -228,6 +229,7 @@ export type LeaveOrderByWithRelationInput = {
   tenantId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   employee?: Prisma.EmployeeOrderByWithRelationInput
+  tenant?: Prisma.TenantOrderByWithRelationInput
 }
 
 export type LeaveWhereUniqueInput = Prisma.AtLeast<{
@@ -244,6 +246,7 @@ export type LeaveWhereUniqueInput = Prisma.AtLeast<{
   tenantId?: Prisma.StringFilter<"Leave"> | string
   createdAt?: Prisma.DateTimeFilter<"Leave"> | Date | string
   employee?: Prisma.XOR<Prisma.EmployeeScalarRelationFilter, Prisma.EmployeeWhereInput>
+  tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
 }, "id">
 
 export type LeaveOrderByWithAggregationInput = {
@@ -283,9 +286,9 @@ export type LeaveCreateInput = {
   endDate: Date | string
   status?: $Enums.LeaveStatus
   reason?: string | null
-  tenantId: string
   createdAt?: Date | string
   employee: Prisma.EmployeeCreateNestedOneWithoutLeavesInput
+  tenant: Prisma.TenantCreateNestedOneWithoutLeavesInput
 }
 
 export type LeaveUncheckedCreateInput = {
@@ -307,9 +310,9 @@ export type LeaveUpdateInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   employee?: Prisma.EmployeeUpdateOneRequiredWithoutLeavesNestedInput
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutLeavesNestedInput
 }
 
 export type LeaveUncheckedUpdateInput = {
@@ -343,7 +346,6 @@ export type LeaveUpdateManyMutationInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -405,6 +407,48 @@ export type LeaveMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
 }
 
+export type LeaveCreateNestedManyWithoutTenantInput = {
+  create?: Prisma.XOR<Prisma.LeaveCreateWithoutTenantInput, Prisma.LeaveUncheckedCreateWithoutTenantInput> | Prisma.LeaveCreateWithoutTenantInput[] | Prisma.LeaveUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.LeaveCreateOrConnectWithoutTenantInput | Prisma.LeaveCreateOrConnectWithoutTenantInput[]
+  createMany?: Prisma.LeaveCreateManyTenantInputEnvelope
+  connect?: Prisma.LeaveWhereUniqueInput | Prisma.LeaveWhereUniqueInput[]
+}
+
+export type LeaveUncheckedCreateNestedManyWithoutTenantInput = {
+  create?: Prisma.XOR<Prisma.LeaveCreateWithoutTenantInput, Prisma.LeaveUncheckedCreateWithoutTenantInput> | Prisma.LeaveCreateWithoutTenantInput[] | Prisma.LeaveUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.LeaveCreateOrConnectWithoutTenantInput | Prisma.LeaveCreateOrConnectWithoutTenantInput[]
+  createMany?: Prisma.LeaveCreateManyTenantInputEnvelope
+  connect?: Prisma.LeaveWhereUniqueInput | Prisma.LeaveWhereUniqueInput[]
+}
+
+export type LeaveUpdateManyWithoutTenantNestedInput = {
+  create?: Prisma.XOR<Prisma.LeaveCreateWithoutTenantInput, Prisma.LeaveUncheckedCreateWithoutTenantInput> | Prisma.LeaveCreateWithoutTenantInput[] | Prisma.LeaveUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.LeaveCreateOrConnectWithoutTenantInput | Prisma.LeaveCreateOrConnectWithoutTenantInput[]
+  upsert?: Prisma.LeaveUpsertWithWhereUniqueWithoutTenantInput | Prisma.LeaveUpsertWithWhereUniqueWithoutTenantInput[]
+  createMany?: Prisma.LeaveCreateManyTenantInputEnvelope
+  set?: Prisma.LeaveWhereUniqueInput | Prisma.LeaveWhereUniqueInput[]
+  disconnect?: Prisma.LeaveWhereUniqueInput | Prisma.LeaveWhereUniqueInput[]
+  delete?: Prisma.LeaveWhereUniqueInput | Prisma.LeaveWhereUniqueInput[]
+  connect?: Prisma.LeaveWhereUniqueInput | Prisma.LeaveWhereUniqueInput[]
+  update?: Prisma.LeaveUpdateWithWhereUniqueWithoutTenantInput | Prisma.LeaveUpdateWithWhereUniqueWithoutTenantInput[]
+  updateMany?: Prisma.LeaveUpdateManyWithWhereWithoutTenantInput | Prisma.LeaveUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.LeaveScalarWhereInput | Prisma.LeaveScalarWhereInput[]
+}
+
+export type LeaveUncheckedUpdateManyWithoutTenantNestedInput = {
+  create?: Prisma.XOR<Prisma.LeaveCreateWithoutTenantInput, Prisma.LeaveUncheckedCreateWithoutTenantInput> | Prisma.LeaveCreateWithoutTenantInput[] | Prisma.LeaveUncheckedCreateWithoutTenantInput[]
+  connectOrCreate?: Prisma.LeaveCreateOrConnectWithoutTenantInput | Prisma.LeaveCreateOrConnectWithoutTenantInput[]
+  upsert?: Prisma.LeaveUpsertWithWhereUniqueWithoutTenantInput | Prisma.LeaveUpsertWithWhereUniqueWithoutTenantInput[]
+  createMany?: Prisma.LeaveCreateManyTenantInputEnvelope
+  set?: Prisma.LeaveWhereUniqueInput | Prisma.LeaveWhereUniqueInput[]
+  disconnect?: Prisma.LeaveWhereUniqueInput | Prisma.LeaveWhereUniqueInput[]
+  delete?: Prisma.LeaveWhereUniqueInput | Prisma.LeaveWhereUniqueInput[]
+  connect?: Prisma.LeaveWhereUniqueInput | Prisma.LeaveWhereUniqueInput[]
+  update?: Prisma.LeaveUpdateWithWhereUniqueWithoutTenantInput | Prisma.LeaveUpdateWithWhereUniqueWithoutTenantInput[]
+  updateMany?: Prisma.LeaveUpdateManyWithWhereWithoutTenantInput | Prisma.LeaveUpdateManyWithWhereWithoutTenantInput[]
+  deleteMany?: Prisma.LeaveScalarWhereInput | Prisma.LeaveScalarWhereInput[]
+}
+
 export type LeaveCreateNestedManyWithoutEmployeeInput = {
   create?: Prisma.XOR<Prisma.LeaveCreateWithoutEmployeeInput, Prisma.LeaveUncheckedCreateWithoutEmployeeInput> | Prisma.LeaveCreateWithoutEmployeeInput[] | Prisma.LeaveUncheckedCreateWithoutEmployeeInput[]
   connectOrCreate?: Prisma.LeaveCreateOrConnectWithoutEmployeeInput | Prisma.LeaveCreateOrConnectWithoutEmployeeInput[]
@@ -455,6 +499,69 @@ export type EnumLeaveStatusFieldUpdateOperationsInput = {
   set?: $Enums.LeaveStatus
 }
 
+export type LeaveCreateWithoutTenantInput = {
+  id?: string
+  type: $Enums.LeaveType
+  startDate: Date | string
+  endDate: Date | string
+  status?: $Enums.LeaveStatus
+  reason?: string | null
+  createdAt?: Date | string
+  employee: Prisma.EmployeeCreateNestedOneWithoutLeavesInput
+}
+
+export type LeaveUncheckedCreateWithoutTenantInput = {
+  id?: string
+  employeeId: string
+  type: $Enums.LeaveType
+  startDate: Date | string
+  endDate: Date | string
+  status?: $Enums.LeaveStatus
+  reason?: string | null
+  createdAt?: Date | string
+}
+
+export type LeaveCreateOrConnectWithoutTenantInput = {
+  where: Prisma.LeaveWhereUniqueInput
+  create: Prisma.XOR<Prisma.LeaveCreateWithoutTenantInput, Prisma.LeaveUncheckedCreateWithoutTenantInput>
+}
+
+export type LeaveCreateManyTenantInputEnvelope = {
+  data: Prisma.LeaveCreateManyTenantInput | Prisma.LeaveCreateManyTenantInput[]
+  skipDuplicates?: boolean
+}
+
+export type LeaveUpsertWithWhereUniqueWithoutTenantInput = {
+  where: Prisma.LeaveWhereUniqueInput
+  update: Prisma.XOR<Prisma.LeaveUpdateWithoutTenantInput, Prisma.LeaveUncheckedUpdateWithoutTenantInput>
+  create: Prisma.XOR<Prisma.LeaveCreateWithoutTenantInput, Prisma.LeaveUncheckedCreateWithoutTenantInput>
+}
+
+export type LeaveUpdateWithWhereUniqueWithoutTenantInput = {
+  where: Prisma.LeaveWhereUniqueInput
+  data: Prisma.XOR<Prisma.LeaveUpdateWithoutTenantInput, Prisma.LeaveUncheckedUpdateWithoutTenantInput>
+}
+
+export type LeaveUpdateManyWithWhereWithoutTenantInput = {
+  where: Prisma.LeaveScalarWhereInput
+  data: Prisma.XOR<Prisma.LeaveUpdateManyMutationInput, Prisma.LeaveUncheckedUpdateManyWithoutTenantInput>
+}
+
+export type LeaveScalarWhereInput = {
+  AND?: Prisma.LeaveScalarWhereInput | Prisma.LeaveScalarWhereInput[]
+  OR?: Prisma.LeaveScalarWhereInput[]
+  NOT?: Prisma.LeaveScalarWhereInput | Prisma.LeaveScalarWhereInput[]
+  id?: Prisma.StringFilter<"Leave"> | string
+  employeeId?: Prisma.StringFilter<"Leave"> | string
+  type?: Prisma.EnumLeaveTypeFilter<"Leave"> | $Enums.LeaveType
+  startDate?: Prisma.DateTimeFilter<"Leave"> | Date | string
+  endDate?: Prisma.DateTimeFilter<"Leave"> | Date | string
+  status?: Prisma.EnumLeaveStatusFilter<"Leave"> | $Enums.LeaveStatus
+  reason?: Prisma.StringNullableFilter<"Leave"> | string | null
+  tenantId?: Prisma.StringFilter<"Leave"> | string
+  createdAt?: Prisma.DateTimeFilter<"Leave"> | Date | string
+}
+
 export type LeaveCreateWithoutEmployeeInput = {
   id?: string
   type: $Enums.LeaveType
@@ -462,8 +569,8 @@ export type LeaveCreateWithoutEmployeeInput = {
   endDate: Date | string
   status?: $Enums.LeaveStatus
   reason?: string | null
-  tenantId: string
   createdAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutLeavesInput
 }
 
 export type LeaveUncheckedCreateWithoutEmployeeInput = {
@@ -503,19 +610,48 @@ export type LeaveUpdateManyWithWhereWithoutEmployeeInput = {
   data: Prisma.XOR<Prisma.LeaveUpdateManyMutationInput, Prisma.LeaveUncheckedUpdateManyWithoutEmployeeInput>
 }
 
-export type LeaveScalarWhereInput = {
-  AND?: Prisma.LeaveScalarWhereInput | Prisma.LeaveScalarWhereInput[]
-  OR?: Prisma.LeaveScalarWhereInput[]
-  NOT?: Prisma.LeaveScalarWhereInput | Prisma.LeaveScalarWhereInput[]
-  id?: Prisma.StringFilter<"Leave"> | string
-  employeeId?: Prisma.StringFilter<"Leave"> | string
-  type?: Prisma.EnumLeaveTypeFilter<"Leave"> | $Enums.LeaveType
-  startDate?: Prisma.DateTimeFilter<"Leave"> | Date | string
-  endDate?: Prisma.DateTimeFilter<"Leave"> | Date | string
-  status?: Prisma.EnumLeaveStatusFilter<"Leave"> | $Enums.LeaveStatus
-  reason?: Prisma.StringNullableFilter<"Leave"> | string | null
-  tenantId?: Prisma.StringFilter<"Leave"> | string
-  createdAt?: Prisma.DateTimeFilter<"Leave"> | Date | string
+export type LeaveCreateManyTenantInput = {
+  id?: string
+  employeeId: string
+  type: $Enums.LeaveType
+  startDate: Date | string
+  endDate: Date | string
+  status?: $Enums.LeaveStatus
+  reason?: string | null
+  createdAt?: Date | string
+}
+
+export type LeaveUpdateWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employee?: Prisma.EmployeeUpdateOneRequiredWithoutLeavesNestedInput
+}
+
+export type LeaveUncheckedUpdateWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LeaveUncheckedUpdateManyWithoutTenantInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  employeeId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumLeaveTypeFieldUpdateOperationsInput | $Enums.LeaveType
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  status?: Prisma.EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
+  reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type LeaveCreateManyEmployeeInput = {
@@ -536,8 +672,8 @@ export type LeaveUpdateWithoutEmployeeInput = {
   endDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   status?: Prisma.EnumLeaveStatusFieldUpdateOperationsInput | $Enums.LeaveStatus
   reason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutLeavesNestedInput
 }
 
 export type LeaveUncheckedUpdateWithoutEmployeeInput = {
@@ -575,6 +711,7 @@ export type LeaveSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   tenantId?: boolean
   createdAt?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["leave"]>
 
 export type LeaveSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -588,6 +725,7 @@ export type LeaveSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   tenantId?: boolean
   createdAt?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["leave"]>
 
 export type LeaveSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -601,6 +739,7 @@ export type LeaveSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   tenantId?: boolean
   createdAt?: boolean
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["leave"]>
 
 export type LeaveSelectScalar = {
@@ -618,18 +757,22 @@ export type LeaveSelectScalar = {
 export type LeaveOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "type" | "startDate" | "endDate" | "status" | "reason" | "tenantId" | "createdAt", ExtArgs["result"]["leave"]>
 export type LeaveInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 export type LeaveIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 export type LeaveIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
+  tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
 
 export type $LeavePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Leave"
   objects: {
     employee: Prisma.$EmployeePayload<ExtArgs>
+    tenant: Prisma.$TenantPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1036,6 +1179,7 @@ readonly fields: LeaveFieldRefs;
 export interface Prisma__LeaveClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   employee<T extends Prisma.EmployeeDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeClient<runtime.Types.Result.GetResult<Prisma.$EmployeePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.

@@ -9,15 +9,26 @@ datasource db {
 }
 
 model Tenant {
-  id           String         @id @default(uuid())
-  name         String
-  slug         String         @unique
-  createdAt    DateTime       @default(now())
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+
   users        User[]
   accounts     Account[]
   transactions Transaction[]
   invoices     Invoice[]
   employees    Employee[]
+
+  payrolls       Payroll[]
+  leaves         Leave[]
+  vendors        Vendor[]
+  purchaseOrders PurchaseOrder[]
+  inventoryItems InventoryItem[]
+
+  auditLogs               AuditLog[]
+  notifications           Notification[]
+  notificationPreferences NotificationPreference[]
 }
 
 model User {
@@ -26,9 +37,16 @@ model User {
   name      String
   role      Role      @default(VIEWER)
   tenantId  String
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
   createdAt DateTime  @default(now())
   deletedAt DateTime?
+
+  tenant Tenant @relation(fields: [tenantId], references: [id])
+
+  auditLogs               AuditLog[]
+  notifications           Notification[]
+  notificationPreferences NotificationPreference[]
+
+  @@index([tenantId])
 }
 
 enum Role {
@@ -39,18 +57,22 @@ enum Role {
 }
 
 model Account {
-  id          String        @id @default(uuid())
-  code        String
-  name        String
-  type        AccountType
-  balance     Decimal       @default(0) @db.Decimal(18, 2)
-  tenantId    String
-  tenant      Tenant        @relation(fields: [tenantId], references: [id])
+  id      String      @id @default(uuid())
+  code    String
+  name    String
+  type    AccountType
+  balance Decimal     @default(0) @db.Decimal(18, 2)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
   debitLines  JournalLine[] @relation("DebitAccount")
   creditLines JournalLine[] @relation("CreditAccount")
-  createdAt   DateTime      @default(now())
+
+  createdAt DateTime @default(now())
 
   @@unique([code, tenantId])
+  @@index([tenantId])
 }
 
 enum AccountType {
@@ -62,40 +84,59 @@ enum AccountType {
 }
 
 model Transaction {
-  id          String        @id @default(uuid())
-  reference   String        @unique
+  id          String   @id @default(uuid())
+  reference   String   @unique
   description String
   date        DateTime
-  tenantId    String
-  tenant      Tenant        @relation(fields: [tenantId], references: [id])
-  lines       JournalLine[]
-  createdAt   DateTime      @default(now())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  lines JournalLine[]
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([createdAt])
 }
 
 model JournalLine {
-  id              String      @id @default(uuid())
-  transactionId   String
-  transaction     Transaction @relation(fields: [transactionId], references: [id])
-  debitAccountId  String?
-  debitAccount    Account?    @relation("DebitAccount", fields: [debitAccountId], references: [id])
+  id            String      @id @default(uuid())
+  transactionId String
+  transaction   Transaction @relation(fields: [transactionId], references: [id])
+
+  debitAccountId String?
+  debitAccount   Account? @relation("DebitAccount", fields: [debitAccountId], references: [id])
+
   creditAccountId String?
-  creditAccount   Account?    @relation("CreditAccount", fields: [creditAccountId], references: [id])
-  amount          Decimal     @db.Decimal(18, 2)
-  currency        String      @default("USD")
-  createdAt       DateTime    @default(now())
+  creditAccount   Account? @relation("CreditAccount", fields: [creditAccountId], references: [id])
+
+  amount   Decimal @db.Decimal(18, 2)
+  currency String  @default("USD")
+
+  createdAt DateTime @default(now())
+
+  @@index([transactionId])
+  @@index([debitAccountId])
+  @@index([creditAccountId])
 }
 
 model Invoice {
-  id        String        @id @default(uuid())
-  number    String        @unique
-  type      InvoiceType
-  status    InvoiceStatus @default(DRAFT)
-  amount    Decimal       @db.Decimal(18, 2)
-  currency  String        @default("USD")
-  dueDate   DateTime
-  tenantId  String
-  tenant    Tenant        @relation(fields: [tenantId], references: [id])
-  createdAt DateTime      @default(now())
+  id       String        @id @default(uuid())
+  number   String        @unique
+  type     InvoiceType
+  status   InvoiceStatus @default(DRAFT)
+  amount   Decimal       @db.Decimal(18, 2)
+  currency String        @default("USD")
+  dueDate  DateTime
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([status])
 }
 
 enum InvoiceType {
@@ -123,12 +164,19 @@ model Employee {
   salary       Decimal   @db.Decimal(18, 2)
   startDate    DateTime
   status       EmpStatus @default(ACTIVE)
-  tenantId     String
-  tenant       Tenant    @relation(fields: [tenantId], references: [id])
-  payrolls     Payroll[]
-  leaves       Leave[]
-  createdAt    DateTime  @default(now())
-  deletedAt    DateTime?
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  payrolls Payroll[]
+  leaves   Leave[]
+
+  createdAt DateTime  @default(now())
+  deletedAt DateTime?
+
+  @@index([tenantId])
+  @@index([department])
+  @@index([status])
 }
 
 enum EmpStatus {
@@ -138,17 +186,26 @@ enum EmpStatus {
 }
 
 model Payroll {
-  id          String        @id @default(uuid())
-  employeeId  String
-  employee    Employee      @relation(fields: [employeeId], references: [id])
+  id         String   @id @default(uuid())
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
   period      String
   grossSalary Decimal       @db.Decimal(18, 2)
   tax         Decimal       @db.Decimal(18, 2)
   deductions  Decimal       @db.Decimal(18, 2)
   netSalary   Decimal       @db.Decimal(18, 2)
   status      PayrollStatus @default(PENDING)
-  tenantId    String
-  createdAt   DateTime      @default(now())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([employeeId])
+  @@index([period])
+  @@index([status])
 }
 
 enum PayrollStatus {
@@ -158,16 +215,24 @@ enum PayrollStatus {
 }
 
 model Leave {
-  id         String      @id @default(uuid())
+  id         String   @id @default(uuid())
   employeeId String
-  employee   Employee    @relation(fields: [employeeId], references: [id])
-  type       LeaveType
-  startDate  DateTime
-  endDate    DateTime
-  status     LeaveStatus @default(PENDING)
-  reason     String?
-  tenantId   String
-  createdAt  DateTime    @default(now())
+  employee   Employee @relation(fields: [employeeId], references: [id])
+
+  type      LeaveType
+  startDate DateTime
+  endDate   DateTime
+  status    LeaveStatus @default(PENDING)
+  reason    String?
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([employeeId])
+  @@index([status])
 }
 
 enum LeaveType {
@@ -182,27 +247,44 @@ enum LeaveStatus {
   APPROVED
   REJECTED
 }
+
 model Vendor {
-  id           String          @id @default(uuid())
-  name         String
-  email        String
-  phone        String?
-  address      String?
-  tenantId     String
-  createdAt    DateTime        @default(now())
+  id      String  @id @default(uuid())
+  name    String
+  email   String
+  phone   String?
+  address String?
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
   purchaseOrders PurchaseOrder[]
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([email])
 }
 
 model PurchaseOrder {
-  id         String      @id @default(uuid())
-  poNumber   String      @unique
-  vendorId   String
-  vendor     Vendor      @relation(fields: [vendorId], references: [id])
-  status     POStatus    @default(DRAFT)
-  totalAmount Decimal    @db.Decimal(18, 2)
-  tenantId   String
-  items      POItem[]
-  createdAt  DateTime    @default(now())
+  id          String   @id @default(uuid())
+  poNumber    String   @unique
+  status      POStatus @default(DRAFT)
+  totalAmount Decimal  @db.Decimal(18, 2)
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id])
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  items POItem[]
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([vendorId])
+  @@index([status])
 }
 
 enum POStatus {
@@ -214,24 +296,199 @@ enum POStatus {
 }
 
 model POItem {
-  id              String        @id @default(uuid())
+  id String @id @default(uuid())
+
   purchaseOrderId String
   purchaseOrder   PurchaseOrder @relation(fields: [purchaseOrderId], references: [id])
-  productName     String
-  quantity        Int
-  unitPrice       Decimal       @db.Decimal(18, 2)
-  totalPrice      Decimal       @db.Decimal(18, 2)
-  createdAt       DateTime      @default(now())
+
+  productName String
+  quantity    Int
+  unitPrice   Decimal @db.Decimal(18, 2)
+  totalPrice  Decimal @db.Decimal(18, 2)
+
+  createdAt DateTime @default(now())
+
+  @@index([purchaseOrderId])
 }
 
 model InventoryItem {
-  id           String   @id @default(uuid())
-  sku          String   @unique
+  id           String  @id @default(uuid())
+  sku          String  @unique
   name         String
-  quantity     Int      @default(0)
-  reorderPoint Int      @default(10)
-  unitPrice    Decimal  @db.Decimal(18, 2)
-  tenantId     String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  category     String?
+  supplier     String?
+  quantity     Int     @default(0)
+  reorderPoint Int     @default(10)
+  unitPrice    Decimal @db.Decimal(18, 2)
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId])
+  @@index([quantity])
+}
+
+model AuditLog {
+  id String @id @default(uuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  module AuditModule
+  action AuditAction
+
+  entityType String
+  entityId   String?
+
+  description String?
+  oldValues   Json?
+  newValues   Json?
+  metadata    Json?
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([module])
+  @@index([action])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([createdAt])
+}
+
+enum AuditModule {
+  AUTH
+  FINANCE
+  HR
+  SUPPLY_CHAIN
+  SYSTEM
+}
+
+enum AuditAction {
+  LOGIN
+  LOGOUT
+  CREATE
+  UPDATE
+  DELETE
+  PROCESS
+  APPROVE
+  REJECT
+  EXPORT
+}
+
+model Notification {
+  id String @id @default(uuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  event   NotificationEvent
+  title   String
+  message String
+  data    Json?
+
+  isRead Boolean   @default(false)
+  readAt DateTime?
+
+  deliveries NotificationDelivery[]
+
+  createdAt DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([event])
+  @@index([isRead])
+  @@index([createdAt])
+}
+
+model NotificationPreference {
+  id String @id @default(uuid())
+
+  tenantId String
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  event   NotificationEvent
+  channel NotificationChannel
+  enabled Boolean             @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, event, channel])
+  @@index([tenantId])
+  @@index([userId])
+  @@index([event])
+  @@index([channel])
+}
+
+model NotificationDelivery {
+  id String @id @default(uuid())
+
+  notificationId String
+  notification   Notification @relation(fields: [notificationId], references: [id])
+
+  channel     NotificationChannel
+  destination String?
+  status      NotificationDeliveryStatus @default(PENDING)
+
+  attempts    Int       @default(0)
+  lastError   String?
+  nextRetryAt DateTime?
+  deliveredAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([notificationId])
+  @@index([channel])
+  @@index([status])
+  @@index([nextRetryAt])
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+  WEBHOOK
+}
+
+enum NotificationDeliveryStatus {
+  PENDING
+  PROCESSING
+  DELIVERED
+  FAILED
+}
+
+enum NotificationEvent {
+  EMPLOYEE_CREATED
+  PAYROLL_PROCESSED
+  LEAVE_CREATED
+
+  ACCOUNT_CREATED
+  TRANSACTION_CREATED
+  INVOICE_CREATED
+
+  VENDOR_CREATED
+  PURCHASE_ORDER_CREATED
+  INVENTORY_CREATED
+  INVENTORY_UPDATED
+  INVENTORY_DELETED
+  LOW_STOCK
+
+  SYSTEM_ALERT
 }

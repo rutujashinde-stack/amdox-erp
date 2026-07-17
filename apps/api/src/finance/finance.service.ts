@@ -1,28 +1,77 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  AuditAction,
+  AuditModule,
+} from '../generated/prisma/client';
+import { AuditService } from '../audit/audit.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class FinanceService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly auditService: AuditService,
+  ) {}
 
   async createAccount(
     tenantId: string,
     data: {
       code: string;
       name: string;
-      type: 'ASSET' | 'LIABILITY' | 'EQUITY' | 'REVENUE' | 'EXPENSE';
+      type:
+        | 'ASSET'
+        | 'LIABILITY'
+        | 'EQUITY'
+        | 'REVENUE'
+        | 'EXPENSE';
       balance?: number;
     },
+    userId?: string,
   ) {
-    return this.prisma.account.create({
+    if (!data.code?.trim() || !data.name?.trim()) {
+      throw new BadRequestException(
+        'Account code and name are required.',
+      );
+    }
+
+    const balance = Number(data.balance ?? 0);
+
+    if (!Number.isFinite(balance)) {
+      throw new BadRequestException(
+        'Account balance must be a valid number.',
+      );
+    }
+
+    const account = await this.prisma.account.create({
       data: {
-        code: data.code,
-        name: data.name,
+        code: data.code.trim(),
+        name: data.name.trim(),
         type: data.type,
-        balance: data.balance ?? 0,
+        balance,
         tenantId,
       },
     });
+
+    await this.auditService.createLog({
+      tenantId,
+      userId,
+      module: AuditModule.FINANCE,
+      action: AuditAction.CREATE,
+      entityType: 'Account',
+      entityId: account.id,
+      description: `Finance account ${account.code} was created.`,
+      newValues: {
+        code: account.code,
+        name: account.name,
+        type: account.type,
+        balance: Number(account.balance),
+      },
+      metadata: {
+        source: 'Finance Account Management',
+      },
+    });
+
+    return account;
   }
 
   async getAccounts(tenantId: string) {
@@ -44,17 +93,26 @@ export class FinanceService {
         currency?: string;
       }[];
     },
+    userId?: string,
   ) {
     if (!data.description?.trim()) {
-      throw new BadRequestException('Transaction description is required.');
+      throw new BadRequestException(
+        'Transaction description is required.',
+      );
     }
 
-    if (!data.date || Number.isNaN(new Date(data.date).getTime())) {
-      throw new BadRequestException('A valid transaction date is required.');
+    const transactionDate = new Date(data.date);
+
+    if (!data.date || Number.isNaN(transactionDate.getTime())) {
+      throw new BadRequestException(
+        'A valid transaction date is required.',
+      );
     }
 
     if (!data.lines || data.lines.length === 0) {
-      throw new BadRequestException('Transaction lines are required.');
+      throw new BadRequestException(
+        'Transaction lines are required.',
+      );
     }
 
     for (const line of data.lines) {
@@ -70,26 +128,29 @@ export class FinanceService {
         );
       }
 
-      if (!Number.isFinite(Number(line.amount)) || Number(line.amount) <= 0) {
+      const amount = Number(line.amount);
+
+      if (!Number.isFinite(amount) || amount <= 0) {
         throw new BadRequestException(
           'Transaction amount must be greater than zero.',
         );
       }
 
-      const [debitAccount, creditAccount] = await Promise.all([
-        this.prisma.account.findFirst({
-          where: {
-            id: line.debitAccountId,
-            tenantId,
-          },
-        }),
-        this.prisma.account.findFirst({
-          where: {
-            id: line.creditAccountId,
-            tenantId,
-          },
-        }),
-      ]);
+      const [debitAccount, creditAccount] =
+        await Promise.all([
+          this.prisma.account.findFirst({
+            where: {
+              id: line.debitAccountId,
+              tenantId,
+            },
+          }),
+          this.prisma.account.findFirst({
+            where: {
+              id: line.creditAccountId,
+              tenantId,
+            },
+          }),
+        ]);
 
       if (!debitAccount || !creditAccount) {
         throw new BadRequestException(
@@ -100,30 +161,65 @@ export class FinanceService {
 
     const reference = `TXN-${Date.now()}`;
 
-    return this.prisma.transaction.create({
-      data: {
-        reference,
-        description: data.description.trim(),
-        date: new Date(data.date),
-        tenantId,
-        lines: {
-          create: data.lines.map((line) => ({
-            debitAccountId: line.debitAccountId,
-            creditAccountId: line.creditAccountId,
-            amount: Number(line.amount),
-            currency: line.currency || 'INR',
-          })),
-        },
-      },
-      include: {
-        lines: {
-          include: {
-            debitAccount: true,
-            creditAccount: true,
+    const transaction =
+      await this.prisma.transaction.create({
+        data: {
+          reference,
+          description: data.description.trim(),
+          date: transactionDate,
+          tenantId,
+          lines: {
+            create: data.lines.map((line) => ({
+              debitAccountId: line.debitAccountId,
+              creditAccountId: line.creditAccountId,
+              amount: Number(line.amount),
+              currency: line.currency || 'INR',
+            })),
           },
         },
+        include: {
+          lines: {
+            include: {
+              debitAccount: true,
+              creditAccount: true,
+            },
+          },
+        },
+      });
+
+    await this.auditService.createLog({
+      tenantId,
+      userId,
+      module: AuditModule.FINANCE,
+      action: AuditAction.CREATE,
+      entityType: 'Transaction',
+      entityId: transaction.id,
+      description: `Finance transaction ${transaction.reference} was recorded.`,
+      newValues: {
+        reference: transaction.reference,
+        description: transaction.description,
+        date: transaction.date.toISOString(),
+        lines: transaction.lines.map((line) => ({
+          debitAccountId: line.debitAccountId,
+          debitAccountCode:
+            line.debitAccount?.code ?? null,
+          debitAccountName:
+            line.debitAccount?.name ?? null,
+          creditAccountId: line.creditAccountId,
+          creditAccountCode:
+            line.creditAccount?.code ?? null,
+          creditAccountName:
+            line.creditAccount?.name ?? null,
+          amount: Number(line.amount),
+          currency: line.currency,
+        })),
+      },
+      metadata: {
+        source: 'Finance Journal Entry',
       },
     });
+
+    return transaction;
   }
 
   async getTransactions(tenantId: string) {
@@ -151,6 +247,7 @@ export class FinanceService {
       currency?: string;
       dueDate: string;
     },
+    userId?: string,
   ) {
     const amount = Number(data.amount);
     const dueDate = new Date(data.dueDate);
@@ -166,12 +263,14 @@ export class FinanceService {
     }
 
     if (Number.isNaN(dueDate.getTime())) {
-      throw new BadRequestException('A valid due date is required.');
+      throw new BadRequestException(
+        'A valid due date is required.',
+      );
     }
 
     const number = `INV-${Date.now()}`;
 
-    return this.prisma.invoice.create({
+    const invoice = await this.prisma.invoice.create({
       data: {
         number,
         type: data.type,
@@ -181,6 +280,29 @@ export class FinanceService {
         tenantId,
       },
     });
+
+    await this.auditService.createLog({
+      tenantId,
+      userId,
+      module: AuditModule.FINANCE,
+      action: AuditAction.CREATE,
+      entityType: 'Invoice',
+      entityId: invoice.id,
+      description: `Invoice ${invoice.number} was created.`,
+      newValues: {
+        number: invoice.number,
+        type: invoice.type,
+        status: invoice.status,
+        amount: Number(invoice.amount),
+        currency: invoice.currency,
+        dueDate: invoice.dueDate.toISOString(),
+      },
+      metadata: {
+        source: 'Finance Invoice Management',
+      },
+    });
+
+    return invoice;
   }
 
   async getInvoices(tenantId: string) {
@@ -193,25 +315,34 @@ export class FinanceService {
   }
 
   async getDashboard(tenantId: string) {
-    const [accounts, invoices, totalTransactions] = await Promise.all([
-      this.prisma.account.findMany({
-        where: { tenantId },
-      }),
-      this.prisma.invoice.findMany({
-        where: { tenantId },
-      }),
-      this.prisma.transaction.count({
-        where: { tenantId },
-      }),
-    ]);
+    const [accounts, invoices, totalTransactions] =
+      await Promise.all([
+        this.prisma.account.findMany({
+          where: { tenantId },
+        }),
+        this.prisma.invoice.findMany({
+          where: { tenantId },
+        }),
+        this.prisma.transaction.count({
+          where: { tenantId },
+        }),
+      ]);
 
     const totalAssets = accounts
       .filter((account) => account.type === 'ASSET')
-      .reduce((sum, account) => sum + Number(account.balance), 0);
+      .reduce(
+        (sum, account) =>
+          sum + Number(account.balance),
+        0,
+      );
 
     const totalLiabilities = accounts
       .filter((account) => account.type === 'LIABILITY')
-      .reduce((sum, account) => sum + Number(account.balance), 0);
+      .reduce(
+        (sum, account) =>
+          sum + Number(account.balance),
+        0,
+      );
 
     const pendingInvoices = invoices.filter(
       (invoice) => invoice.status === 'PENDING',

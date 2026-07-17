@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
+  console.log("Current Working Directory:", process.cwd());
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalPipes(
@@ -33,7 +34,7 @@ async function bootstrap() {
 });
 
   const port = process.env.PORT || 3001;
-  await app.listen(port);
+  await app.listen(3002);
 
   console.log(`API running on port ${port}`);
   console.log(`Swagger docs at /api-docs`);

@@ -1,5 +1,17 @@
-import { Controller, Get, Post, Body, UseGuards, Request } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { HrService } from './hr.service';
 
@@ -8,11 +20,11 @@ import { HrService } from './hr.service';
 @ApiBearerAuth()
 @Controller('hr')
 export class HrController {
-  constructor(private hrService: HrService) {}
+  constructor(private readonly hrService: HrService) {}
 
   @Get('dashboard')
   @ApiOperation({ summary: 'HR dashboard summary' })
-  getDashboard(@Request() req) {
+  getDashboard(@Request() req: any) {
     return this.hrService.getDashboard(req.user.tenantId);
   }
 
@@ -32,13 +44,20 @@ export class HrController {
       },
     },
   })
-  createEmployee(@Request() req, @Body() body: any) {
-    return this.hrService.createEmployee(req.user.tenantId, body);
+  createEmployee(
+    @Request() req: any,
+    @Body() body: any,
+  ) {
+    return this.hrService.createEmployee(
+      req.user.tenantId,
+      body,
+      req.user.userId ?? req.user.sub,
+    );
   }
 
   @Get('employees')
   @ApiOperation({ summary: 'Get all employees' })
-  getEmployees(@Request() req) {
+  getEmployees(@Request() req: any) {
     return this.hrService.getEmployees(req.user.tenantId);
   }
 
@@ -51,13 +70,20 @@ export class HrController {
       },
     },
   })
-  processPayroll(@Request() req, @Body() body: any) {
-    return this.hrService.processPayroll(req.user.tenantId, body.period);
+  processPayroll(
+    @Request() req: any,
+    @Body() body: any,
+  ) {
+    return this.hrService.processPayroll(
+      req.user.tenantId,
+      body.period,
+      req.user.userId ?? req.user.sub,
+    );
   }
 
   @Get('payroll')
   @ApiOperation({ summary: 'Get payroll records' })
-  getPayroll(@Request() req) {
+  getPayroll(@Request() req: any) {
     return this.hrService.getPayrolls(req.user.tenantId);
   }
 
@@ -74,13 +100,20 @@ export class HrController {
       },
     },
   })
-  applyLeave(@Request() req, @Body() body: any) {
-    return this.hrService.applyLeave(req.user.tenantId, body);
+  applyLeave(
+    @Request() req: any,
+    @Body() body: any,
+  ) {
+    return this.hrService.applyLeave(
+      req.user.tenantId,
+      body,
+      req.user.userId ?? req.user.sub,
+    );
   }
 
   @Get('leaves')
   @ApiOperation({ summary: 'Get leave requests' })
-  getLeaves(@Request() req) {
+  getLeaves(@Request() req: any) {
     return this.hrService.getLeaves(req.user.tenantId);
   }
 }
