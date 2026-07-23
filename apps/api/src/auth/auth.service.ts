@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -7,20 +11,32 @@ export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
   ) {}
 
   async login(email: string, password: string) {
-    const validEmail = 'admin@amdox.com';
-    const validPassword = 'admin123';
+    const validEmail = this.configService
+      .getOrThrow<string>('DEMO_ADMIN_EMAIL')
+      .trim()
+      .toLowerCase();
+
+    const validPassword =
+      this.configService.getOrThrow<string>(
+        'DEMO_ADMIN_PASSWORD',
+      );
 
     const cleanEmail = email?.trim().toLowerCase();
     const cleanPassword = password?.trim();
 
-    if (cleanEmail !== validEmail || cleanPassword !== validPassword) {
-      throw new UnauthorizedException('Invalid credentials');
+    if (
+      cleanEmail !== validEmail ||
+      cleanPassword !== validPassword
+    ) {
+      throw new UnauthorizedException(
+        'Invalid credentials',
+      );
     }
 
-    // Create the demo tenant if it does not already exist
     const tenant = await this.prisma.tenant.upsert({
       where: {
         slug: 'amdox-demo',
@@ -32,7 +48,6 @@ export class AuthService {
       },
     });
 
-    // Create or update the admin user using the real tenant UUID
     const user = await this.prisma.user.upsert({
       where: {
         email: validEmail,
