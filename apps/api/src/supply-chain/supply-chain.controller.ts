@@ -9,34 +9,47 @@ import {
   Request,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { Roles } from '../auth/roles.decorator';
+import { RolesGuard } from '../auth/roles.guard';
+import { Role } from '../generated/prisma/client';
 import { SupplyChainService } from './supply-chain.service';
 
 @ApiTags('Supply Chain')
 @ApiBearerAuth()
-@UseGuards(AuthGuard('jwt'))
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('supply-chain')
 export class SupplyChainController {
   constructor(
-    private readonly supplyChainService: SupplyChainService,
+    private readonly supplyChainService:
+      SupplyChainService,
   ) {}
 
   @Get('dashboard')
-  @ApiOperation({ summary: 'Supply chain dashboard' })
+  @ApiOperation({
+    summary: 'Supply chain dashboard',
+  })
   getDashboard(@Request() req: any) {
     return this.supplyChainService.getDashboard(
       req.user.tenantId,
     );
   }
 
+  @Roles(
+    Role.SUPER_ADMIN,
+    Role.TENANT_ADMIN,
+    Role.MANAGER,
+  )
   @Post('vendors')
-  @ApiOperation({ summary: 'Create vendor' })
+  @ApiOperation({
+    summary: 'Create vendor',
+  })
   @ApiBody({
     schema: {
       example: {
@@ -59,15 +72,24 @@ export class SupplyChainController {
   }
 
   @Get('vendors')
-  @ApiOperation({ summary: 'Get all vendors' })
+  @ApiOperation({
+    summary: 'Get all vendors',
+  })
   getVendors(@Request() req: any) {
     return this.supplyChainService.getVendors(
       req.user.tenantId,
     );
   }
 
+  @Roles(
+    Role.SUPER_ADMIN,
+    Role.TENANT_ADMIN,
+    Role.MANAGER,
+  )
   @Post('purchase-orders')
-  @ApiOperation({ summary: 'Create purchase order' })
+  @ApiOperation({
+    summary: 'Create purchase order',
+  })
   @ApiBody({
     schema: {
       example: {
@@ -94,15 +116,24 @@ export class SupplyChainController {
   }
 
   @Get('purchase-orders')
-  @ApiOperation({ summary: 'Get all purchase orders' })
+  @ApiOperation({
+    summary: 'Get all purchase orders',
+  })
   getPurchaseOrders(@Request() req: any) {
     return this.supplyChainService.getPurchaseOrders(
       req.user.tenantId,
     );
   }
 
+  @Roles(
+    Role.SUPER_ADMIN,
+    Role.TENANT_ADMIN,
+    Role.MANAGER,
+  )
   @Post('inventory')
-  @ApiOperation({ summary: 'Add inventory item' })
+  @ApiOperation({
+    summary: 'Add inventory item',
+  })
   @ApiBody({
     schema: {
       example: {
@@ -126,15 +157,24 @@ export class SupplyChainController {
   }
 
   @Get('inventory')
-  @ApiOperation({ summary: 'Get inventory' })
+  @ApiOperation({
+    summary: 'Get inventory',
+  })
   getInventory(@Request() req: any) {
     return this.supplyChainService.getInventory(
       req.user.tenantId,
     );
   }
 
+  @Roles(
+    Role.SUPER_ADMIN,
+    Role.TENANT_ADMIN,
+    Role.MANAGER,
+  )
   @Patch('inventory/:id')
-  @ApiOperation({ summary: 'Update inventory item' })
+  @ApiOperation({
+    summary: 'Update inventory item',
+  })
   @ApiBody({
     schema: {
       example: {
@@ -158,8 +198,15 @@ export class SupplyChainController {
     );
   }
 
+  @Roles(
+    Role.SUPER_ADMIN,
+    Role.TENANT_ADMIN,
+    Role.MANAGER,
+  )
   @Delete('inventory/:id')
-  @ApiOperation({ summary: 'Delete inventory item' })
+  @ApiOperation({
+    summary: 'Delete inventory item',
+  })
   deleteInventory(
     @Request() req: any,
     @Param('id') id: string,
@@ -172,7 +219,9 @@ export class SupplyChainController {
   }
 
   @Get('inventory/low-stock')
-  @ApiOperation({ summary: 'Get low stock alerts' })
+  @ApiOperation({
+    summary: 'Get low-stock alerts',
+  })
   getLowStock(@Request() req: any) {
     return this.supplyChainService.getLowStockItems(
       req.user.tenantId,
