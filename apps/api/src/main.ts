@@ -34,7 +34,7 @@ async function bootstrap() {
 });
 
   const port = process.env.PORT || 3001;
-  await app.listen(3002);
+  await app.listen(port);
 
   console.log(`API running on port ${port}`);
   console.log(`Swagger docs at /api-docs`);
