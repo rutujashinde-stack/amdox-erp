@@ -1,13 +1,14 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Activity,
+  Package,
   RefreshCw,
+  ShoppingCart,
   Users,
   Wallet,
-  Package,
-  ShoppingCart,
 } from 'lucide-react';
 import api from '../../lib/api';
 
@@ -54,6 +55,7 @@ interface AuditItem {
   description: string;
   createdAt?: string;
   icon: 'employee' | 'transaction' | 'product' | 'order';
+  href: string;
 }
 
 function formatDateTime(value?: string) {
@@ -74,9 +76,15 @@ function formatDateTime(value?: string) {
 }
 
 export default function AuditLogsPage() {
+  const router = useRouter();
+
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [inventory, setInventory] = useState<InventoryItem[]>([]);
+  const [transactions, setTransactions] = useState<
+    Transaction[]
+  >([]);
+  const [inventory, setInventory] = useState<
+    InventoryItem[]
+  >([]);
   const [orders, setOrders] = useState<PurchaseOrder[]>([]);
 
   const [loading, setLoading] = useState(true);
@@ -148,7 +156,10 @@ export default function AuditLogsPage() {
         setError('Could not load audit activity.');
       }
     } catch (err) {
-      console.error('Audit activity loading failed:', err);
+      console.error(
+        'Audit activity loading failed:',
+        err,
+      );
       setError('Could not load audit activity.');
     } finally {
       setLoading(false);
@@ -161,19 +172,24 @@ export default function AuditLogsPage() {
   }, []);
 
   const auditItems = useMemo<AuditItem[]>(() => {
-    const employeeItems: AuditItem[] = employees.map((employee) => ({
-      id: `employee-${employee.id}`,
-      module: 'HR',
-      action: 'Employee created',
-      description: `${employee.employeeCode || 'Employee'} - ${
-        employee.firstName || ''
-      } ${employee.lastName || ''}`.trim(),
-      createdAt: employee.createdAt,
-      icon: 'employee',
-    }));
+    const employeeItems: AuditItem[] = employees.map(
+      (employee) => ({
+        id: `employee-${employee.id}`,
+        module: 'HR',
+        action: 'Employee created',
+        description: `${
+          employee.employeeCode || 'Employee'
+        } - ${employee.firstName || ''} ${
+          employee.lastName || ''
+        }`.trim(),
+        createdAt: employee.createdAt,
+        icon: 'employee',
+        href: '/hr/employees',
+      }),
+    );
 
-    const transactionItems: AuditItem[] = transactions.map(
-      (transaction) => ({
+    const transactionItems: AuditItem[] =
+      transactions.map((transaction) => ({
         id: `transaction-${transaction.id}`,
         module: 'Finance',
         action: 'Transaction recorded',
@@ -181,36 +197,45 @@ export default function AuditLogsPage() {
           transaction.reference ||
           transaction.description ||
           'Finance transaction',
-        createdAt: transaction.createdAt || transaction.date,
+        createdAt:
+          transaction.createdAt || transaction.date,
         icon: 'transaction',
+        href: '/finance/transactions',
+      }));
+
+    const inventoryItems: AuditItem[] = inventory.map(
+      (item) => ({
+        id: `inventory-${item.id}`,
+        module: 'Supply Chain',
+        action: 'Inventory item created',
+        description: `${
+          item.sku || 'SKU unavailable'
+        } - ${item.name || 'Unnamed product'}`,
+        createdAt: item.createdAt,
+        icon: 'product',
+        href: '/supply-chain/inventory',
       }),
     );
 
-    const inventoryItems: AuditItem[] = inventory.map((item) => ({
-      id: `inventory-${item.id}`,
-      module: 'Supply Chain',
-      action: 'Inventory item created',
-      description: `${item.sku || 'SKU unavailable'} - ${
-        item.name || 'Unnamed product'
-      }`,
-      createdAt: item.createdAt,
-      icon: 'product',
-    }));
-
-    const orderItems: AuditItem[] = orders.map((order) => ({
-      id: `order-${order.id}`,
-      module: 'Supply Chain',
-      action: 'Purchase order created',
-      description: `${
-        order.orderNumber || order.poNumber || 'Purchase order'
-      } - ${
-        order.vendor?.name ||
-        order.supplier?.name ||
-        'Supplier unavailable'
-      }`,
-      createdAt: order.createdAt,
-      icon: 'order',
-    }));
+    const orderItems: AuditItem[] = orders.map(
+      (order) => ({
+        id: `order-${order.id}`,
+        module: 'Supply Chain',
+        action: 'Purchase order created',
+        description: `${
+          order.orderNumber ||
+          order.poNumber ||
+          'Purchase order'
+        } - ${
+          order.vendor?.name ||
+          order.supplier?.name ||
+          'Supplier unavailable'
+        }`,
+        createdAt: order.createdAt,
+        icon: 'order',
+        href: '/supply-chain/orders',
+      }),
+    );
 
     return [
       ...employeeItems,
@@ -256,7 +281,9 @@ export default function AuditLogsPage() {
     return <Package size={20} />;
   };
 
-  const getModuleClass = (module: AuditItem['module']) => {
+  const getModuleClass = (
+    module: AuditItem['module'],
+  ) => {
     if (module === 'HR') {
       return 'bg-blue-100 text-blue-700';
     }
@@ -266,6 +293,10 @@ export default function AuditLogsPage() {
     }
 
     return 'bg-purple-100 text-purple-700';
+  };
+
+  const openAuditItem = (item: AuditItem) => {
+    router.push(item.href);
   };
 
   return (
@@ -281,7 +312,8 @@ export default function AuditLogsPage() {
           </div>
 
           <p className="mt-2 text-gray-600">
-            Central activity view for major ERP operations.
+            Central activity view for major ERP
+            operations.
           </p>
         </div>
 
@@ -293,7 +325,9 @@ export default function AuditLogsPage() {
         >
           <RefreshCw
             size={18}
-            className={refreshing ? 'animate-spin' : ''}
+            className={
+              refreshing ? 'animate-spin' : ''
+            }
           />
 
           {refreshing ? 'Refreshing...' : 'Refresh'}
@@ -345,58 +379,78 @@ export default function AuditLogsPage() {
         </div>
       )}
 
-      {!loading && !error && filteredItems.length === 0 && (
-        <div className="mt-8 rounded-xl bg-white p-8 text-center text-gray-500 shadow">
-          No audit activity found.
-        </div>
-      )}
+      {!loading &&
+        !error &&
+        filteredItems.length === 0 && (
+          <div className="mt-8 rounded-xl bg-white p-8 text-center text-gray-500 shadow">
+            No audit activity found.
+          </div>
+        )}
 
-      {!loading && !error && filteredItems.length > 0 && (
-        <div className="mt-8 space-y-4">
-          {filteredItems.map((item) => (
-            <div
-              key={item.id}
-              className="rounded-xl border bg-white p-5 shadow-sm"
-            >
-              <div className="flex flex-wrap items-start justify-between gap-4">
-                <div className="flex gap-4">
-                  <div className="mt-1 rounded-lg bg-slate-100 p-3 text-slate-700">
-                    {getIcon(item.icon)}
-                  </div>
-
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h2 className="font-semibold">
-                        {item.action}
-                      </h2>
-
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-medium ${getModuleClass(
-                          item.module,
-                        )}`}
-                      >
-                        {item.module}
-                      </span>
+      {!loading &&
+        !error &&
+        filteredItems.length > 0 && (
+          <div className="mt-8 space-y-4">
+            {filteredItems.map((item) => (
+              <div
+                key={item.id}
+                role="button"
+                tabIndex={0}
+                onClick={() => openAuditItem(item)}
+                onKeyDown={(event) => {
+                  if (
+                    event.key === 'Enter' ||
+                    event.key === ' '
+                  ) {
+                    event.preventDefault();
+                    openAuditItem(item);
+                  }
+                }}
+                className="cursor-pointer rounded-xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
+              >
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="flex gap-4">
+                    <div className="mt-1 rounded-lg bg-slate-100 p-3 text-slate-700">
+                      {getIcon(item.icon)}
                     </div>
 
-                    <p className="mt-2 text-gray-700">
-                      {item.description}
-                    </p>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="font-semibold">
+                          {item.action}
+                        </h2>
 
-                    <p className="mt-2 text-sm text-gray-500">
-                      Performed by: Admin
-                    </p>
+                        <span
+                          className={`rounded-full px-3 py-1 text-xs font-medium ${getModuleClass(
+                            item.module,
+                          )}`}
+                        >
+                          {item.module}
+                        </span>
+                      </div>
+
+                      <p className="mt-2 text-gray-700">
+                        {item.description}
+                      </p>
+
+                      <p className="mt-2 text-sm text-gray-500">
+                        Performed by: Admin
+                      </p>
+
+                      <p className="mt-2 text-sm font-medium text-blue-600">
+                        Click to view related records
+                      </p>
+                    </div>
                   </div>
-                </div>
 
-                <p className="text-sm text-gray-500">
-                  {formatDateTime(item.createdAt)}
-                </p>
+                  <p className="text-sm text-gray-500">
+                    {formatDateTime(item.createdAt)}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
     </section>
   );
 }
