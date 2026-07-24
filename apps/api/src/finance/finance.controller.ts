@@ -16,6 +16,11 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { Role } from '../generated/prisma/client';
+import {
+  CreateAccountDto,
+  CreateInvoiceDto,
+  CreateTransactionDto,
+} from './dto/finance.dto';
 import { FinanceService } from './finance.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -47,18 +52,21 @@ export class FinanceController {
     summary: 'Create a chart of accounts entry',
   })
   @ApiBody({
-    schema: {
-      example: {
-        code: '1001',
-        name: 'Cash',
-        type: 'ASSET',
-        balance: 50000,
+    type: CreateAccountDto,
+    examples: {
+      account: {
+        value: {
+          code: '1001',
+          name: 'Cash',
+          type: 'ASSET',
+          balance: 50000,
+        },
       },
     },
   })
   createAccount(
     @Request() req: any,
-    @Body() body: any,
+    @Body() body: CreateAccountDto,
   ) {
     return this.financeService.createAccount(
       req.user.tenantId,
@@ -87,26 +95,29 @@ export class FinanceController {
     summary: 'Create a journal entry',
   })
   @ApiBody({
-    schema: {
-      example: {
-        description: 'Office Rent Payment',
-        date: '2026-07-03',
-        lines: [
-          {
-            debitAccountId:
-              'paste-debit-account-id-here',
-            creditAccountId:
-              'paste-credit-account-id-here',
-            amount: 10000,
-            currency: 'INR',
-          },
-        ],
+    type: CreateTransactionDto,
+    examples: {
+      transaction: {
+        value: {
+          description: 'Office Rent Payment',
+          date: '2026-07-03',
+          lines: [
+            {
+              debitAccountId:
+                'paste-debit-account-uuid-here',
+              creditAccountId:
+                'paste-credit-account-uuid-here',
+              amount: 10000,
+              currency: 'INR',
+            },
+          ],
+        },
       },
     },
   })
   createTransaction(
     @Request() req: any,
-    @Body() body: any,
+    @Body() body: CreateTransactionDto,
   ) {
     return this.financeService.createTransaction(
       req.user.tenantId,
@@ -135,18 +146,21 @@ export class FinanceController {
     summary: 'Create an invoice',
   })
   @ApiBody({
-    schema: {
-      example: {
-        type: 'RECEIVABLE',
-        amount: 15000,
-        currency: 'INR',
-        dueDate: '2026-07-30',
+    type: CreateInvoiceDto,
+    examples: {
+      invoice: {
+        value: {
+          type: 'RECEIVABLE',
+          amount: 15000,
+          currency: 'INR',
+          dueDate: '2026-07-30',
+        },
       },
     },
   })
   createInvoice(
     @Request() req: any,
-    @Body() body: any,
+    @Body() body: CreateInvoiceDto,
   ) {
     return this.financeService.createInvoice(
       req.user.tenantId,
