@@ -1,257 +1,276 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   AlertTriangle,
   Bell,
   CheckCircle2,
+  FileText,
+  Package,
   ShoppingCart,
   Users,
   Wallet,
 } from 'lucide-react';
 import api from '../../lib/api';
 
-interface FinanceDashboard {
-  netWorth?: number | string;
-  totalTransactions?: number;
-}
-
-interface HrDashboard {
-  totalEmployees?: number;
-  totalPayrolls?: number;
-  pendingLeaves?: number;
-}
-
-interface SupplyChainDashboard {
-  totalPurchaseOrders?: number;
-  totalInventoryItems?: number;
-  totalVendors?: number;
-  lowStockItems?: number;
+interface NotificationData {
+  entityType?: string;
+  entityId?: string;
+  href?: string;
 }
 
 interface NotificationItem {
   id: string;
+  event: string;
   title: string;
   message: string;
-  type: 'success' | 'warning' | 'info';
-  icon: 'finance' | 'employee' | 'order' | 'stock';
-  href: string;
+  data?: NotificationData;
+  isRead: boolean;
+  readAt?: string;
+  createdAt: string;
+}
+
+function formatDateTime(value?: string) {
+  if (!value) {
+    return 'Date unavailable';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return 'Date unavailable';
+  }
+
+  return date.toLocaleString('en-IN', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  });
+}
+
+function getNotificationDestination(
+  notification: NotificationItem,
+) {
+  if (notification.data?.href) {
+    return notification.data.href;
+  }
+
+  const event = notification.event.toUpperCase();
+
+  if (event.includes('ACCOUNT')) {
+    return '/finance';
+  }
+
+  if (event.includes('TRANSACTION')) {
+    return '/finance/transactions';
+  }
+
+  if (event.includes('INVOICE')) {
+    return '/finance/invoices';
+  }
+
+  if (event.includes('EMPLOYEE')) {
+    return '/hr/employees';
+  }
+
+  if (event.includes('PAYROLL')) {
+    return '/hr/payroll';
+  }
+
+  if (event.includes('LEAVE')) {
+    return '/hr/leaves';
+  }
+
+  if (event.includes('VENDOR')) {
+    return '/supply-chain/suppliers';
+  }
+
+  if (event.includes('PURCHASE_ORDER')) {
+    return '/supply-chain/orders';
+  }
+
+  if (
+    event.includes('INVENTORY') ||
+    event.includes('LOW_STOCK')
+  ) {
+    return '/supply-chain/inventory';
+  }
+
+  return '/dashboard';
 }
 
 export default function NotificationsPage() {
   const router = useRouter();
 
-  const [finance, setFinance] =
-    useState<FinanceDashboard>({});
-  const [hr, setHr] = useState<HrDashboard>({});
-  const [supplyChain, setSupplyChain] =
-    useState<SupplyChainDashboard>({});
-
+  const [notifications, setNotifications] = useState<
+    NotificationItem[]
+  >([]);
   const [loading, setLoading] = useState(true);
+  const [markingAll, setMarkingAll] = useState(false);
   const [error, setError] = useState('');
-  const [readIds, setReadIds] = useState<string[]>([]);
 
-  useEffect(() => {
-    async function loadNotifications() {
-      try {
-        setError('');
+  const loadNotifications = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError('');
 
-        const [
-          financeResponse,
-          hrResponse,
-          supplyChainResponse,
-        ] = await Promise.all([
-          api.get('/finance/dashboard'),
-          api.get('/hr/dashboard'),
-          api.get('/supply-chain/dashboard'),
-        ]);
+      const response = await api.get('/notifications');
 
-        setFinance(financeResponse.data ?? {});
-        setHr(hrResponse.data ?? {});
-        setSupplyChain(supplyChainResponse.data ?? {});
-      } catch (err) {
-        console.error('Notification loading failed:', err);
-        setError('Could not load live ERP notifications.');
-      } finally {
-        setLoading(false);
-      }
+      setNotifications(
+        Array.isArray(response.data)
+          ? response.data
+          : [],
+      );
+    } catch (err) {
+      console.error(
+        'Notification loading failed:',
+        err,
+      );
+      setError(
+        'Could not load notifications. Please log in again and retry.',
+      );
+    } finally {
+      setLoading(false);
     }
-
-    loadNotifications();
   }, []);
 
-  const notifications = useMemo<NotificationItem[]>(() => {
-    const items: NotificationItem[] = [];
+  useEffect(() => {
+    loadNotifications();
+  }, [loadNotifications]);
 
-    const lowStockItems = Number(
-      supplyChain.lowStockItems ?? 0,
-    );
-    const totalEmployees = Number(hr.totalEmployees ?? 0);
-    const totalPayrolls = Number(hr.totalPayrolls ?? 0);
-    const pendingLeaves = Number(hr.pendingLeaves ?? 0);
-    const totalOrders = Number(
-      supplyChain.totalPurchaseOrders ?? 0,
-    );
-    const totalTransactions = Number(
-      finance.totalTransactions ?? 0,
+  const unreadCount = useMemo(
+    () =>
+      notifications.filter(
+        (notification) => !notification.isRead,
+      ).length,
+    [notifications],
+  );
+
+  const markAsRead = async (id: string) => {
+    const notification = notifications.find(
+      (item) => item.id === id,
     );
 
-    if (lowStockItems > 0) {
-      items.push({
-        id: 'low-stock',
-        title: 'Low stock alert',
-        message: `${lowStockItems} product${
-          lowStockItems === 1 ? '' : 's'
-        } need restocking.`,
-        type: 'warning',
-        icon: 'stock',
-        href: '/supply-chain/inventory',
-      });
-    } else {
-      items.push({
-        id: 'stock-ok',
-        title: 'Inventory status',
-        message:
-          'All products currently have sufficient stock.',
-        type: 'success',
-        icon: 'stock',
-        href: '/supply-chain/inventory',
-      });
+    if (!notification || notification.isRead) {
+      return;
     }
 
-    items.push({
-      id: 'employees',
-      title: 'Employee summary',
-      message: `${totalEmployees} employee${
-        totalEmployees === 1 ? '' : 's'
-      } are currently registered in the ERP.`,
-      type: 'info',
-      icon: 'employee',
-      href: '/hr/employees',
-    });
+    await api.patch(`/notifications/${id}/read`);
 
-    items.push({
-      id: 'payroll',
-      title: 'Payroll summary',
-      message: `${totalPayrolls} payroll record${
-        totalPayrolls === 1 ? '' : 's'
-      } have been processed.`,
-      type: 'success',
-      icon: 'employee',
-      href: '/hr/payroll',
-    });
-
-    if (pendingLeaves > 0) {
-      items.push({
-        id: 'pending-leaves',
-        title: 'Pending leave requests',
-        message: `${pendingLeaves} leave request${
-          pendingLeaves === 1 ? ' is' : 's are'
-        } waiting for review.`,
-        type: 'warning',
-        icon: 'employee',
-        href: '/hr/leaves',
-      });
-    }
-
-    items.push({
-      id: 'orders',
-      title: 'Purchase order summary',
-      message: `${totalOrders} purchase order${
-        totalOrders === 1 ? '' : 's'
-      } are available in the system.`,
-      type: 'info',
-      icon: 'order',
-      href: '/supply-chain/orders',
-    });
-
-    items.push({
-      id: 'transactions',
-      title: 'Finance activity',
-      message: `${totalTransactions} finance transaction${
-        totalTransactions === 1 ? '' : 's'
-      } have been recorded.`,
-      type: 'info',
-      icon: 'finance',
-      href: '/finance/transactions',
-    });
-
-    return items;
-  }, [finance, hr, supplyChain]);
-
-  const unreadCount = notifications.filter(
-    (notification) =>
-      !readIds.includes(notification.id),
-  ).length;
-
-  const markAsRead = (id: string) => {
-    setReadIds((current) =>
-      current.includes(id)
-        ? current
-        : [...current, id],
-    );
-  };
-
-  const markAllAsRead = () => {
-    setReadIds(
-      notifications.map(
-        (notification) => notification.id,
+    setNotifications((current) =>
+      current.map((item) =>
+        item.id === id
+          ? {
+              ...item,
+              isRead: true,
+              readAt: new Date().toISOString(),
+            }
+          : item,
       ),
     );
   };
 
-  const openNotification = (
+  const openNotification = async (
     notification: NotificationItem,
   ) => {
-    markAsRead(notification.id);
-    router.push(notification.href);
+    try {
+      await markAsRead(notification.id);
+    } catch (err) {
+      console.error(
+        'Could not mark notification as read:',
+        err,
+      );
+    }
+
+    router.push(
+      getNotificationDestination(notification),
+    );
   };
 
-  const getIcon = (
-    icon: NotificationItem['icon'],
-  ) => {
-    if (icon === 'finance') {
+  const markAllAsRead = async () => {
+    try {
+      setMarkingAll(true);
+      await api.patch('/notifications/read-all');
+
+      const readAt = new Date().toISOString();
+
+      setNotifications((current) =>
+        current.map((notification) => ({
+          ...notification,
+          isRead: true,
+          readAt,
+        })),
+      );
+    } catch (err) {
+      console.error(
+        'Could not mark all notifications as read:',
+        err,
+      );
+      setError(
+        'Could not mark all notifications as read.',
+      );
+    } finally {
+      setMarkingAll(false);
+    }
+  };
+
+  const getIcon = (event: string) => {
+    const normalizedEvent = event.toUpperCase();
+
+    if (
+      normalizedEvent.includes('ACCOUNT') ||
+      normalizedEvent.includes('TRANSACTION') ||
+      normalizedEvent.includes('INVOICE')
+    ) {
       return <Wallet size={22} />;
     }
 
-    if (icon === 'employee') {
+    if (
+      normalizedEvent.includes('EMPLOYEE') ||
+      normalizedEvent.includes('PAYROLL') ||
+      normalizedEvent.includes('LEAVE')
+    ) {
       return <Users size={22} />;
     }
 
-    if (icon === 'order') {
+    if (
+      normalizedEvent.includes('PURCHASE_ORDER')
+    ) {
       return <ShoppingCart size={22} />;
     }
 
-    return <AlertTriangle size={22} />;
+    if (
+      normalizedEvent.includes('INVENTORY') ||
+      normalizedEvent.includes('VENDOR')
+    ) {
+      return <Package size={22} />;
+    }
+
+    if (normalizedEvent.includes('LOW_STOCK')) {
+      return <AlertTriangle size={22} />;
+    }
+
+    return <FileText size={22} />;
   };
 
-  const getCardClass = (
-    type: NotificationItem['type'],
-  ) => {
-    if (type === 'warning') {
+  const getCardClass = (event: string) => {
+    const normalizedEvent = event.toUpperCase();
+
+    if (
+      normalizedEvent.includes('LOW_STOCK') ||
+      normalizedEvent.includes('ALERT')
+    ) {
       return 'border-yellow-200 bg-yellow-50';
     }
 
-    if (type === 'success') {
+    if (
+      normalizedEvent.includes('CREATED') ||
+      normalizedEvent.includes('PROCESSED')
+    ) {
       return 'border-green-200 bg-green-50';
     }
 
     return 'border-blue-200 bg-blue-50';
-  };
-
-  const getIconClass = (
-    type: NotificationItem['type'],
-  ) => {
-    if (type === 'warning') {
-      return 'text-yellow-700';
-    }
-
-    if (type === 'success') {
-      return 'text-green-700';
-    }
-
-    return 'text-blue-700';
   };
 
   return (
@@ -267,19 +286,34 @@ export default function NotificationsPage() {
           </div>
 
           <p className="mt-2 text-gray-600">
-            Live alerts and activity summaries from your ERP
-            data.
+            Persistent alerts generated by ERP business
+            events.
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={markAllAsRead}
-          disabled={unreadCount === 0}
-          className="rounded-lg bg-slate-900 px-5 py-3 text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          Mark All as Read
-        </button>
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={loadNotifications}
+            disabled={loading}
+            className="rounded-lg border border-slate-300 bg-white px-5 py-3 text-slate-700 hover:bg-slate-100 disabled:opacity-50"
+          >
+            Refresh
+          </button>
+
+          <button
+            type="button"
+            onClick={markAllAsRead}
+            disabled={
+              unreadCount === 0 || markingAll
+            }
+            className="rounded-lg bg-slate-900 px-5 py-3 text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {markingAll
+              ? 'Marking...'
+              : 'Mark All as Read'}
+          </button>
+        </div>
       </div>
 
       <div className="mt-6 rounded-xl bg-white p-5 shadow">
@@ -300,20 +334,25 @@ export default function NotificationsPage() {
         </p>
       )}
 
-      {error && (
-        <p className="mt-8 text-center text-red-600">
+      {error && !loading && (
+        <div className="mt-8 rounded-xl bg-red-50 p-5 text-red-600">
           {error}
-        </p>
+        </div>
       )}
 
-      {!loading && !error && (
-        <div className="mt-8 space-y-4">
-          {notifications.map((notification) => {
-            const isRead = readIds.includes(
-              notification.id,
-            );
+      {!loading &&
+        !error &&
+        notifications.length === 0 && (
+          <div className="mt-8 rounded-xl bg-white p-8 text-center text-gray-500 shadow">
+            No notifications have been generated yet.
+          </div>
+        )}
 
-            return (
+      {!loading &&
+        !error &&
+        notifications.length > 0 && (
+          <div className="mt-8 space-y-4">
+            {notifications.map((notification) => (
               <div
                 key={notification.id}
                 role="button"
@@ -330,18 +369,18 @@ export default function NotificationsPage() {
                     openNotification(notification);
                   }
                 }}
-                className={`cursor-pointer rounded-xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
-                  getCardClass(notification.type)
-                } ${isRead ? 'opacity-60' : ''}`}
+                className={`cursor-pointer rounded-xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${getCardClass(
+                  notification.event,
+                )} ${
+                  notification.isRead
+                    ? 'opacity-60'
+                    : ''
+                }`}
               >
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex gap-4">
-                    <div
-                      className={`mt-1 ${getIconClass(
-                        notification.type,
-                      )}`}
-                    >
-                      {getIcon(notification.icon)}
+                    <div className="mt-1 text-slate-700">
+                      {getIcon(notification.event)}
                     </div>
 
                     <div>
@@ -350,7 +389,7 @@ export default function NotificationsPage() {
                           {notification.title}
                         </h2>
 
-                        {!isRead && (
+                        {!notification.isRead && (
                           <span className="h-2.5 w-2.5 rounded-full bg-red-600" />
                         )}
                       </div>
@@ -360,12 +399,18 @@ export default function NotificationsPage() {
                       </p>
 
                       <p className="mt-2 text-sm text-gray-500">
+                        {formatDateTime(
+                          notification.createdAt,
+                        )}
+                      </p>
+
+                      <p className="mt-2 text-sm font-medium text-blue-600">
                         Click to view related records
                       </p>
                     </div>
                   </div>
 
-                  {isRead ? (
+                  {notification.isRead ? (
                     <div className="flex items-center gap-2 text-sm font-medium text-green-700">
                       <CheckCircle2 size={18} />
                       Read
@@ -373,9 +418,19 @@ export default function NotificationsPage() {
                   ) : (
                     <button
                       type="button"
-                      onClick={(event) => {
+                      onClick={async (event) => {
                         event.stopPropagation();
-                        markAsRead(notification.id);
+
+                        try {
+                          await markAsRead(
+                            notification.id,
+                          );
+                        } catch (err) {
+                          console.error(
+                            'Could not mark notification as read:',
+                            err,
+                          );
+                        }
                       }}
                       className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow hover:bg-slate-100"
                     >
@@ -384,10 +439,9 @@ export default function NotificationsPage() {
                   )}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
     </section>
   );
 }

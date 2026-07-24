@@ -4,11 +4,13 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { AuditService } from '../audit/audit.service';
 import {
   AuditAction,
   AuditModule,
+  NotificationEvent,
 } from '../generated/prisma/client';
-import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -16,6 +18,7 @@ export class HrService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async createEmployee(
@@ -85,21 +88,22 @@ export class HrService {
         count + 1,
       ).padStart(4, '0')}`;
 
-      const employee = await this.prisma.employee.create({
-        data: {
-          employeeCode,
-          firstName: data.firstName.trim(),
-          lastName: data.lastName.trim(),
-          email: normalizedEmail,
-          phone: data.phone?.trim() || null,
-          department: data.department.trim(),
-          position: data.position.trim(),
-          salary,
-          startDate,
-          status: data.status || 'ACTIVE',
-          tenantId,
-        },
-      });
+      const employee =
+        await this.prisma.employee.create({
+          data: {
+            employeeCode,
+            firstName: data.firstName.trim(),
+            lastName: data.lastName.trim(),
+            email: normalizedEmail,
+            phone: data.phone?.trim() || null,
+            department: data.department.trim(),
+            position: data.position.trim(),
+            salary,
+            startDate,
+            status: data.status || 'ACTIVE',
+            tenantId,
+          },
+        });
 
       await this.auditService.createLog({
         tenantId,
@@ -118,11 +122,25 @@ export class HrService {
           department: employee.department,
           position: employee.position,
           salary: Number(employee.salary),
-          startDate: employee.startDate.toISOString(),
+          startDate:
+            employee.startDate.toISOString(),
           status: employee.status,
         },
         metadata: {
           source: 'HR Employee Management',
+        },
+      });
+
+      await this.notificationsService.createNotification({
+        tenantId,
+        userId,
+        event: NotificationEvent.EMPLOYEE_CREATED,
+        title: 'Employee created',
+        message: `${employee.firstName} ${employee.lastName} (${employee.employeeCode}) was added to ${employee.department}.`,
+        data: {
+          entityType: 'Employee',
+          entityId: employee.id,
+          href: '/hr/employees',
         },
       });
 
@@ -138,7 +156,9 @@ export class HrService {
       }
 
       if (error?.code === 'P2002') {
-        const fields = Array.isArray(error?.meta?.target)
+        const fields = Array.isArray(
+          error?.meta?.target,
+        )
           ? error.meta.target.join(', ')
           : 'unique field';
 
@@ -256,6 +276,22 @@ export class HrService {
       },
     });
 
+    await this.notificationsService.createNotification({
+      tenantId,
+      userId,
+      event: NotificationEvent.PAYROLL_PROCESSED,
+      title: 'Payroll processed',
+      message: `Payroll for ${normalizedPeriod} was processed for ${payrolls.length} employees.`,
+      data: {
+        entityType: 'PayrollRun',
+        entityId: normalizedPeriod,
+        href: '/hr/payroll',
+        totalEmployees: payrolls.length,
+        totalGross,
+        totalNet,
+      },
+    });
+
     return {
       period: normalizedPeriod,
       totalEmployees: payrolls.length,
@@ -351,6 +387,20 @@ export class HrService {
       },
       metadata: {
         source: 'HR Leave Management',
+      },
+    });
+
+    await this.notificationsService.createNotification({
+      tenantId,
+      userId,
+      event: NotificationEvent.LEAVE_CREATED,
+      title: 'Leave request created',
+      message: `${employee.firstName} ${employee.lastName} submitted a ${leave.type} leave request.`,
+      data: {
+        entityType: 'Leave',
+        entityId: leave.id,
+        href: '/hr/leaves',
+        employeeId: employee.id,
       },
     });
 
