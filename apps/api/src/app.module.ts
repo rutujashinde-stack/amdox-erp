@@ -10,6 +10,7 @@ import { AppService } from './app.service';
 import { AuditModule } from './audit/audit.module';
 import { AuthModule } from './auth/auth.module';
 import { FinanceModule } from './finance/finance.module';
+import { HealthModule } from './health/health.module';
 import { HrModule } from './hr/hr.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { PrismaModule } from './prisma/prisma.module';
@@ -34,6 +35,7 @@ import { SupplyChainModule } from './supply-chain/supply-chain.module';
     SupplyChainModule,
     AuditModule,
     NotificationsModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [
