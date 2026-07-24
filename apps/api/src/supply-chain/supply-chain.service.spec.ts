@@ -3,25 +3,29 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AuditService } from '../audit/audit.service';
 import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
-import { FinanceService } from './finance.service';
+import { SupplyChainService } from './supply-chain.service';
 
-describe('FinanceService', () => {
-  let service: FinanceService;
+describe('SupplyChainService', () => {
+  let service: SupplyChainService;
 
   const prismaService = {
-    account: {
+    vendor: {
       create: jest.fn(),
       findMany: jest.fn(),
       findFirst: jest.fn(),
+      count: jest.fn(),
     },
-    transaction: {
+    purchaseOrder: {
       create: jest.fn(),
       findMany: jest.fn(),
       count: jest.fn(),
     },
-    invoice: {
+    inventoryItem: {
       create: jest.fn(),
       findMany: jest.fn(),
+      findFirst: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
     },
   };
 
@@ -39,7 +43,7 @@ describe('FinanceService', () => {
     const module: TestingModule =
       await Test.createTestingModule({
         providers: [
-          FinanceService,
+          SupplyChainService,
           {
             provide: PrismaService,
             useValue: prismaService,
@@ -56,22 +60,22 @@ describe('FinanceService', () => {
       }).compile();
 
     service =
-      module.get<FinanceService>(FinanceService);
+      module.get<SupplyChainService>(
+        SupplyChainService,
+      );
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  it('should reject an account without a code', async () => {
+  it('should reject a vendor without an email', async () => {
     await expect(
-      service.createAccount(
+      service.createVendor(
         'tenant-id',
         {
-          code: '',
-          name: 'Cash',
-          type: 'ASSET',
-          balance: 1000,
+          name: 'ABC Suppliers',
+          email: '',
         },
         'user-id',
       ),
@@ -80,22 +84,22 @@ describe('FinanceService', () => {
     );
 
     expect(
-      prismaService.account.create,
+      prismaService.vendor.create,
     ).not.toHaveBeenCalled();
   });
 
-  it('should create an account, audit log and notification', async () => {
-    const account = {
-      id: 'account-id',
+  it('should create a vendor, audit log and notification', async () => {
+    const vendor = {
+      id: 'vendor-id',
       tenantId: 'tenant-id',
-      code: '1001',
-      name: 'Cash',
-      type: 'ASSET',
-      balance: 50000,
+      name: 'ABC Suppliers',
+      email: 'vendor@example.com',
+      phone: null,
+      address: null,
     };
 
-    prismaService.account.create.mockResolvedValue(
-      account,
+    prismaService.vendor.create.mockResolvedValue(
+      vendor,
     );
     auditService.createLog.mockResolvedValue({
       id: 'audit-id',
@@ -107,40 +111,38 @@ describe('FinanceService', () => {
     );
 
     await expect(
-      service.createAccount(
+      service.createVendor(
         'tenant-id',
         {
-          code: '1001',
-          name: 'Cash',
-          type: 'ASSET',
-          balance: 50000,
+          name: 'ABC Suppliers',
+          email: 'VENDOR@EXAMPLE.COM',
         },
         'user-id',
       ),
-    ).resolves.toEqual(account);
+    ).resolves.toEqual(vendor);
 
     expect(
-      prismaService.account.create,
-    ).toHaveBeenCalled();
+      prismaService.vendor.create,
+    ).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        tenantId: 'tenant-id',
+        name: 'ABC Suppliers',
+        email: 'vendor@example.com',
+      }),
+    });
+
     expect(
       auditService.createLog,
+    ).toHaveBeenCalled();
+
+    expect(
+      notificationsService.createNotification,
     ).toHaveBeenCalledWith(
       expect.objectContaining({
+        title: 'Supplier created',
         tenantId: 'tenant-id',
         userId: 'user-id',
-        entityType: 'Account',
-        entityId: 'account-id',
       }),
-    );
-    expect(
-  notificationsService.createNotification,
-).toHaveBeenCalledWith(
-  expect.objectContaining({
-    tenantId: 'tenant-id',
-    userId: 'user-id',
-    title: 'Finance account created',
-  }),
-
     );
   });
 });
