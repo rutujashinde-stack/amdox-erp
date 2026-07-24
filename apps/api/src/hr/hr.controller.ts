@@ -16,6 +16,11 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { Role } from '../generated/prisma/client';
+import {
+  ApplyLeaveDto,
+  CreateEmployeeDto,
+  ProcessPayrollDto,
+} from './dto/hr.dto';
 import { HrService } from './hr.service';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -47,22 +52,26 @@ export class HrController {
     summary: 'Create employee',
   })
   @ApiBody({
-    schema: {
-      example: {
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john2@example.com',
-        department: 'IT',
-        position: 'Software Engineer',
-        salary: 50000,
-        startDate: '2026-07-06',
-        status: 'ACTIVE',
+    type: CreateEmployeeDto,
+    examples: {
+      employee: {
+        value: {
+          firstName: 'John',
+          lastName: 'Doe',
+          email: 'john@example.com',
+          phone: '9876543210',
+          department: 'IT',
+          position: 'Software Engineer',
+          salary: 50000,
+          startDate: '2026-07-06',
+          status: 'ACTIVE',
+        },
       },
     },
   })
   createEmployee(
     @Request() req: any,
-    @Body() body: any,
+    @Body() body: CreateEmployeeDto,
   ) {
     return this.hrService.createEmployee(
       req.user.tenantId,
@@ -91,15 +100,18 @@ export class HrController {
     summary: 'Process payroll',
   })
   @ApiBody({
-    schema: {
-      example: {
-        period: '2026-07',
+    type: ProcessPayrollDto,
+    examples: {
+      payroll: {
+        value: {
+          period: '2026-07',
+        },
       },
     },
   })
   processPayroll(
     @Request() req: any,
-    @Body() body: any,
+    @Body() body: ProcessPayrollDto,
   ) {
     return this.hrService.processPayroll(
       req.user.tenantId,
@@ -123,19 +135,23 @@ export class HrController {
     summary: 'Apply leave',
   })
   @ApiBody({
-    schema: {
-      example: {
-        employeeId: 'paste-employee-id-here',
-        type: 'SICK',
-        startDate: '2026-07-10',
-        endDate: '2026-07-12',
-        reason: 'Personal Leave',
+    type: ApplyLeaveDto,
+    examples: {
+      leave: {
+        value: {
+          employeeId:
+            'paste-employee-uuid-here',
+          type: 'SICK',
+          startDate: '2026-07-10',
+          endDate: '2026-07-12',
+          reason: 'Medical appointment',
+        },
       },
     },
   })
   applyLeave(
     @Request() req: any,
-    @Body() body: any,
+    @Body() body: ApplyLeaveDto,
   ) {
     return this.hrService.applyLeave(
       req.user.tenantId,

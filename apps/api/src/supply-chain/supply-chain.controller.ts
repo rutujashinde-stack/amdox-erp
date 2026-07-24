@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Request,
@@ -19,6 +20,12 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { Roles } from '../auth/roles.decorator';
 import { RolesGuard } from '../auth/roles.guard';
 import { Role } from '../generated/prisma/client';
+import {
+  CreateInventoryItemDto,
+  CreatePurchaseOrderDto,
+  CreateVendorDto,
+  UpdateInventoryItemDto,
+} from './dto/supply-chain.dto';
 import { SupplyChainService } from './supply-chain.service';
 
 @ApiTags('Supply Chain')
@@ -51,18 +58,21 @@ export class SupplyChainController {
     summary: 'Create vendor',
   })
   @ApiBody({
-    schema: {
-      example: {
-        name: 'ABC Suppliers',
-        email: 'vendor@example.com',
-        phone: '9876543210',
-        address: 'Pune, Maharashtra',
+    type: CreateVendorDto,
+    examples: {
+      vendor: {
+        value: {
+          name: 'ABC Suppliers',
+          email: 'vendor@example.com',
+          phone: '9876543210',
+          address: 'Pune, Maharashtra',
+        },
       },
     },
   })
   createVendor(
     @Request() req: any,
-    @Body() body: any,
+    @Body() body: CreateVendorDto,
   ) {
     return this.supplyChainService.createVendor(
       req.user.tenantId,
@@ -91,22 +101,25 @@ export class SupplyChainController {
     summary: 'Create purchase order',
   })
   @ApiBody({
-    schema: {
-      example: {
-        vendorId: 'paste-vendor-id-here',
-        items: [
-          {
-            productName: 'Laptop',
-            quantity: 5,
-            unitPrice: 50000,
-          },
-        ],
+    type: CreatePurchaseOrderDto,
+    examples: {
+      purchaseOrder: {
+        value: {
+          vendorId: 'paste-vendor-uuid-here',
+          items: [
+            {
+              productName: 'Laptop',
+              quantity: 5,
+              unitPrice: 50000,
+            },
+          ],
+        },
       },
     },
   })
   createPurchaseOrder(
     @Request() req: any,
-    @Body() body: any,
+    @Body() body: CreatePurchaseOrderDto,
   ) {
     return this.supplyChainService.createPurchaseOrder(
       req.user.tenantId,
@@ -135,19 +148,22 @@ export class SupplyChainController {
     summary: 'Add inventory item',
   })
   @ApiBody({
-    schema: {
-      example: {
-        sku: 'ITEM-001',
-        name: 'Laptop',
-        quantity: 10,
-        reorderPoint: 5,
-        unitPrice: 50000,
+    type: CreateInventoryItemDto,
+    examples: {
+      inventory: {
+        value: {
+          sku: 'ITEM-001',
+          name: 'Laptop',
+          quantity: 10,
+          reorderPoint: 5,
+          unitPrice: 50000,
+        },
       },
     },
   })
   createInventory(
     @Request() req: any,
-    @Body() body: any,
+    @Body() body: CreateInventoryItemDto,
   ) {
     return this.supplyChainService.createInventoryItem(
       req.user.tenantId,
@@ -166,6 +182,16 @@ export class SupplyChainController {
     );
   }
 
+  @Get('inventory/low-stock')
+  @ApiOperation({
+    summary: 'Get low-stock alerts',
+  })
+  getLowStock(@Request() req: any) {
+    return this.supplyChainService.getLowStockItems(
+      req.user.tenantId,
+    );
+  }
+
   @Roles(
     Role.SUPER_ADMIN,
     Role.TENANT_ADMIN,
@@ -176,19 +202,22 @@ export class SupplyChainController {
     summary: 'Update inventory item',
   })
   @ApiBody({
-    schema: {
-      example: {
-        name: 'Updated Laptop',
-        quantity: 20,
-        reorderPoint: 5,
-        unitPrice: 52000,
+    type: UpdateInventoryItemDto,
+    examples: {
+      inventoryUpdate: {
+        value: {
+          name: 'Updated Laptop',
+          quantity: 20,
+          reorderPoint: 5,
+          unitPrice: 52000,
+        },
       },
     },
   })
   updateInventory(
     @Request() req: any,
-    @Param('id') id: string,
-    @Body() body: any,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() body: UpdateInventoryItemDto,
   ) {
     return this.supplyChainService.updateInventoryItem(
       req.user.tenantId,
@@ -209,22 +238,12 @@ export class SupplyChainController {
   })
   deleteInventory(
     @Request() req: any,
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
   ) {
     return this.supplyChainService.deleteInventoryItem(
       req.user.tenantId,
       id,
       req.user.userId ?? req.user.sub,
-    );
-  }
-
-  @Get('inventory/low-stock')
-  @ApiOperation({
-    summary: 'Get low-stock alerts',
-  })
-  getLowStock(@Request() req: any) {
-    return this.supplyChainService.getLowStockItems(
-      req.user.tenantId,
     );
   }
 }
