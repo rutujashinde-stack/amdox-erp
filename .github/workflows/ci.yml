@@ -50,3 +50,18 @@ jobs:
         env:
           NEXT_PUBLIC_API_URL: https://amdox-erp-api.onrender.com
         run: pnpm --filter web run build
+
+              - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+          cache-dependency-path: apps/ml-service/requirements.txt
+
+      - name: Install ML dependencies
+        working-directory: apps/ml-service
+        run: pip install -r requirements.txt
+
+      - name: Test ML forecasting service
+        working-directory: apps/ml-service
+        run: pytest -q
