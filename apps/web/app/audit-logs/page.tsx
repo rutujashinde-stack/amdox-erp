@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Activity,
+  FileText,
   Package,
   RefreshCw,
   ShoppingCart,
@@ -12,50 +13,22 @@ import {
 } from 'lucide-react';
 import api from '../../lib/api';
 
-interface Employee {
+interface AuditUser {
   id: string;
-  employeeCode?: string;
-  firstName?: string;
-  lastName?: string;
-  createdAt?: string;
-}
-
-interface Transaction {
-  id: string;
-  reference?: string;
-  description?: string;
-  createdAt?: string;
-  date?: string;
-}
-
-interface InventoryItem {
-  id: string;
-  sku?: string;
   name?: string;
-  createdAt?: string;
+  email?: string;
+  role?: string;
 }
 
-interface PurchaseOrder {
+interface AuditLog {
   id: string;
-  orderNumber?: string;
-  poNumber?: string;
-  createdAt?: string;
-  vendor?: {
-    name?: string;
-  };
-  supplier?: {
-    name?: string;
-  };
-}
-
-interface AuditItem {
-  id: string;
-  module: 'HR' | 'Finance' | 'Supply Chain';
+  module: string;
   action: string;
-  description: string;
-  createdAt?: string;
-  icon: 'employee' | 'transaction' | 'product' | 'order';
-  href: string;
+  entityType: string;
+  entityId?: string;
+  description?: string;
+  createdAt: string;
+  user?: AuditUser;
 }
 
 function formatDateTime(value?: string) {
@@ -75,228 +48,179 @@ function formatDateTime(value?: string) {
   });
 }
 
+function formatLabel(value?: string) {
+  if (!value) {
+    return 'Activity';
+  }
+
+  return value
+    .replace(/_/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .toLowerCase()
+    .replace(/\b\w/g, (character) =>
+      character.toUpperCase(),
+    );
+}
+
+function getAuditDestination(log: AuditLog) {
+  const module = log.module.toUpperCase();
+  const entity = log.entityType.toLowerCase();
+
+  if (module.includes('FINANCE')) {
+    if (entity.includes('invoice')) {
+      return '/finance/invoices';
+    }
+
+    if (
+      entity.includes('transaction') ||
+      entity.includes('journal')
+    ) {
+      return '/finance/transactions';
+    }
+
+    return '/finance';
+  }
+
+  if (module.includes('HR')) {
+    if (entity.includes('leave')) {
+      return '/hr/leaves';
+    }
+
+    if (entity.includes('payroll')) {
+      return '/hr/payroll';
+    }
+
+    return '/hr/employees';
+  }
+
+  if (
+    module.includes('SUPPLY') ||
+    module.includes('INVENTORY')
+  ) {
+    if (
+      entity.includes('order') ||
+      entity.includes('purchase')
+    ) {
+      return '/supply-chain/orders';
+    }
+
+    if (
+      entity.includes('vendor') ||
+      entity.includes('supplier')
+    ) {
+      return '/supply-chain/suppliers';
+    }
+
+    return '/supply-chain/inventory';
+  }
+
+  return '/dashboard';
+}
+
 export default function AuditLogsPage() {
   const router = useRouter();
 
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [transactions, setTransactions] = useState<
-    Transaction[]
-  >([]);
-  const [inventory, setInventory] = useState<
-    InventoryItem[]
-  >([]);
-  const [orders, setOrders] = useState<PurchaseOrder[]>([]);
-
+  const [logs, setLogs] = useState<AuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
-  const [moduleFilter, setModuleFilter] = useState('ALL');
+  const [moduleFilter, setModuleFilter] =
+    useState('ALL');
 
-  const loadAuditData = async (isRefresh = false) => {
-    try {
-      if (isRefresh) {
-        setRefreshing(true);
-      } else {
-        setLoading(true);
-      }
+  const loadAuditLogs = useCallback(
+    async (isRefresh = false) => {
+      try {
+        if (isRefresh) {
+          setRefreshing(true);
+        } else {
+          setLoading(true);
+        }
 
-      setError('');
+        setError('');
 
-      const results = await Promise.allSettled([
-        api.get('/hr/employees'),
-        api.get('/finance/transactions'),
-        api.get('/supply-chain/inventory'),
-        api.get('/supply-chain/purchase-orders'),
-      ]);
-
-      const [
-        employeesResult,
-        transactionsResult,
-        inventoryResult,
-        ordersResult,
-      ] = results;
-
-      if (employeesResult.status === 'fulfilled') {
-        setEmployees(
-          Array.isArray(employeesResult.value.data)
-            ? employeesResult.value.data
+        const response = await api.get('/audit-logs');
+        setLogs(
+          Array.isArray(response.data)
+            ? response.data
             : [],
         );
-      }
-
-      if (transactionsResult.status === 'fulfilled') {
-        setTransactions(
-          Array.isArray(transactionsResult.value.data)
-            ? transactionsResult.value.data
-            : [],
+      } catch (err) {
+        console.error(
+          'Audit activity loading failed:',
+          err,
         );
-      }
-
-      if (inventoryResult.status === 'fulfilled') {
-        setInventory(
-          Array.isArray(inventoryResult.value.data)
-            ? inventoryResult.value.data
-            : [],
+        setError(
+          'Could not load audit activity. Please log in again and retry.',
         );
+      } finally {
+        setLoading(false);
+        setRefreshing(false);
       }
-
-      if (ordersResult.status === 'fulfilled') {
-        setOrders(
-          Array.isArray(ordersResult.value.data)
-            ? ordersResult.value.data
-            : [],
-        );
-      }
-
-      const allFailed = results.every(
-        (result) => result.status === 'rejected',
-      );
-
-      if (allFailed) {
-        setError('Could not load audit activity.');
-      }
-    } catch (err) {
-      console.error(
-        'Audit activity loading failed:',
-        err,
-      );
-      setError('Could not load audit activity.');
-    } finally {
-      setLoading(false);
-      setRefreshing(false);
-    }
-  };
+    },
+    [],
+  );
 
   useEffect(() => {
-    loadAuditData();
-  }, []);
+    loadAuditLogs();
+  }, [loadAuditLogs]);
 
-  const auditItems = useMemo<AuditItem[]>(() => {
-    const employeeItems: AuditItem[] = employees.map(
-      (employee) => ({
-        id: `employee-${employee.id}`,
-        module: 'HR',
-        action: 'Employee created',
-        description: `${
-          employee.employeeCode || 'Employee'
-        } - ${employee.firstName || ''} ${
-          employee.lastName || ''
-        }`.trim(),
-        createdAt: employee.createdAt,
-        icon: 'employee',
-        href: '/hr/employees',
-      }),
-    );
+  const availableModules = useMemo(
+    () =>
+      Array.from(
+        new Set(logs.map((log) => log.module)),
+      ),
+    [logs],
+  );
 
-    const transactionItems: AuditItem[] =
-      transactions.map((transaction) => ({
-        id: `transaction-${transaction.id}`,
-        module: 'Finance',
-        action: 'Transaction recorded',
-        description:
-          transaction.reference ||
-          transaction.description ||
-          'Finance transaction',
-        createdAt:
-          transaction.createdAt || transaction.date,
-        icon: 'transaction',
-        href: '/finance/transactions',
-      }));
-
-    const inventoryItems: AuditItem[] = inventory.map(
-      (item) => ({
-        id: `inventory-${item.id}`,
-        module: 'Supply Chain',
-        action: 'Inventory item created',
-        description: `${
-          item.sku || 'SKU unavailable'
-        } - ${item.name || 'Unnamed product'}`,
-        createdAt: item.createdAt,
-        icon: 'product',
-        href: '/supply-chain/inventory',
-      }),
-    );
-
-    const orderItems: AuditItem[] = orders.map(
-      (order) => ({
-        id: `order-${order.id}`,
-        module: 'Supply Chain',
-        action: 'Purchase order created',
-        description: `${
-          order.orderNumber ||
-          order.poNumber ||
-          'Purchase order'
-        } - ${
-          order.vendor?.name ||
-          order.supplier?.name ||
-          'Supplier unavailable'
-        }`,
-        createdAt: order.createdAt,
-        icon: 'order',
-        href: '/supply-chain/orders',
-      }),
-    );
-
-    return [
-      ...employeeItems,
-      ...transactionItems,
-      ...inventoryItems,
-      ...orderItems,
-    ].sort((first, second) => {
-      const firstTime = first.createdAt
-        ? new Date(first.createdAt).getTime()
-        : 0;
-
-      const secondTime = second.createdAt
-        ? new Date(second.createdAt).getTime()
-        : 0;
-
-      return secondTime - firstTime;
-    });
-  }, [employees, transactions, inventory, orders]);
-
-  const filteredItems = useMemo(() => {
+  const filteredLogs = useMemo(() => {
     if (moduleFilter === 'ALL') {
-      return auditItems;
+      return logs;
     }
 
-    return auditItems.filter(
-      (item) => item.module === moduleFilter,
+    return logs.filter(
+      (log) => log.module === moduleFilter,
     );
-  }, [auditItems, moduleFilter]);
+  }, [logs, moduleFilter]);
 
-  const getIcon = (icon: AuditItem['icon']) => {
-    if (icon === 'employee') {
-      return <Users size={20} />;
-    }
+  const getIcon = (log: AuditLog) => {
+    const module = log.module.toUpperCase();
+    const entity = log.entityType.toLowerCase();
 
-    if (icon === 'transaction') {
+    if (module.includes('FINANCE')) {
       return <Wallet size={20} />;
     }
 
-    if (icon === 'order') {
+    if (module.includes('HR')) {
+      return <Users size={20} />;
+    }
+
+    if (entity.includes('order')) {
       return <ShoppingCart size={20} />;
     }
 
-    return <Package size={20} />;
+    if (module.includes('SUPPLY')) {
+      return <Package size={20} />;
+    }
+
+    return <FileText size={20} />;
   };
 
-  const getModuleClass = (
-    module: AuditItem['module'],
-  ) => {
-    if (module === 'HR') {
+  const getModuleClass = (module: string) => {
+    const normalizedModule = module.toUpperCase();
+
+    if (normalizedModule.includes('HR')) {
       return 'bg-blue-100 text-blue-700';
     }
 
-    if (module === 'Finance') {
+    if (normalizedModule.includes('FINANCE')) {
       return 'bg-green-100 text-green-700';
     }
 
-    return 'bg-purple-100 text-purple-700';
-  };
+    if (normalizedModule.includes('SUPPLY')) {
+      return 'bg-purple-100 text-purple-700';
+    }
 
-  const openAuditItem = (item: AuditItem) => {
-    router.push(item.href);
+    return 'bg-slate-100 text-slate-700';
   };
 
   return (
@@ -312,14 +236,14 @@ export default function AuditLogsPage() {
           </div>
 
           <p className="mt-2 text-gray-600">
-            Central activity view for major ERP
+            Immutable activity records generated by ERP
             operations.
           </p>
         </div>
 
         <button
           type="button"
-          onClick={() => loadAuditData(true)}
+          onClick={() => loadAuditLogs(true)}
           disabled={refreshing}
           className="flex items-center gap-2 rounded-lg bg-slate-900 px-5 py-3 text-white hover:bg-slate-700 disabled:opacity-50"
         >
@@ -342,7 +266,7 @@ export default function AuditLogsPage() {
             </p>
 
             <p className="mt-1 text-3xl font-bold">
-              {auditItems.length}
+              {logs.length}
             </p>
           </div>
 
@@ -354,11 +278,12 @@ export default function AuditLogsPage() {
             className="rounded-lg border border-gray-300 px-4 py-3"
           >
             <option value="ALL">All Modules</option>
-            <option value="Finance">Finance</option>
-            <option value="HR">HR</option>
-            <option value="Supply Chain">
-              Supply Chain
-            </option>
+
+            {availableModules.map((module) => (
+              <option key={module} value={module}>
+                {formatLabel(module)}
+              </option>
+            ))}
           </select>
         </div>
       </div>
@@ -381,29 +306,33 @@ export default function AuditLogsPage() {
 
       {!loading &&
         !error &&
-        filteredItems.length === 0 && (
+        filteredLogs.length === 0 && (
           <div className="mt-8 rounded-xl bg-white p-8 text-center text-gray-500 shadow">
-            No audit activity found.
+            No audit activity has been recorded yet.
           </div>
         )}
 
       {!loading &&
         !error &&
-        filteredItems.length > 0 && (
+        filteredLogs.length > 0 && (
           <div className="mt-8 space-y-4">
-            {filteredItems.map((item) => (
+            {filteredLogs.map((log) => (
               <div
-                key={item.id}
+                key={log.id}
                 role="button"
                 tabIndex={0}
-                onClick={() => openAuditItem(item)}
+                onClick={() =>
+                  router.push(getAuditDestination(log))
+                }
                 onKeyDown={(event) => {
                   if (
                     event.key === 'Enter' ||
                     event.key === ' '
                   ) {
                     event.preventDefault();
-                    openAuditItem(item);
+                    router.push(
+                      getAuditDestination(log),
+                    );
                   }
                 }}
                 className="cursor-pointer rounded-xl border bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-md"
@@ -411,30 +340,36 @@ export default function AuditLogsPage() {
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="flex gap-4">
                     <div className="mt-1 rounded-lg bg-slate-100 p-3 text-slate-700">
-                      {getIcon(item.icon)}
+                      {getIcon(log)}
                     </div>
 
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
                         <h2 className="font-semibold">
-                          {item.action}
+                          {formatLabel(log.action)}
                         </h2>
 
                         <span
                           className={`rounded-full px-3 py-1 text-xs font-medium ${getModuleClass(
-                            item.module,
+                            log.module,
                           )}`}
                         >
-                          {item.module}
+                          {formatLabel(log.module)}
                         </span>
                       </div>
 
                       <p className="mt-2 text-gray-700">
-                        {item.description}
+                        {log.description ||
+                          `${formatLabel(
+                            log.entityType,
+                          )} activity`}
                       </p>
 
                       <p className="mt-2 text-sm text-gray-500">
-                        Performed by: Admin
+                        Performed by:{' '}
+                        {log.user?.name ||
+                          log.user?.email ||
+                          'System'}
                       </p>
 
                       <p className="mt-2 text-sm font-medium text-blue-600">
@@ -444,7 +379,7 @@ export default function AuditLogsPage() {
                   </div>
 
                   <p className="text-sm text-gray-500">
-                    {formatDateTime(item.createdAt)}
+                    {formatDateTime(log.createdAt)}
                   </p>
                 </div>
               </div>

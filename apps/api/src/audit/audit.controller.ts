@@ -4,12 +4,19 @@ import {
   Param,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Request } from 'express';
 import {
   AuditAction,
   AuditModule,
 } from '../generated/prisma/client';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { AuditService } from './audit.service';
 
 interface AuthenticatedRequest extends Request {
@@ -22,12 +29,20 @@ interface AuthenticatedRequest extends Request {
   };
 }
 
+@ApiTags('Audit Logs')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('audit-logs')
 export class AuditController {
-  constructor(private readonly auditService: AuditService) {}
+  constructor(
+    private readonly auditService: AuditService,
+  ) {}
 
   @Get()
-  async getLogs(
+  @ApiOperation({
+    summary: 'Get audit logs for the current tenant',
+  })
+  getLogs(
     @Req() request: AuthenticatedRequest,
     @Query('module') module?: AuditModule,
     @Query('action') action?: AuditAction,
@@ -44,13 +59,20 @@ export class AuditController {
       entityType,
       entityId,
       userId,
-      dateFrom: dateFrom ? new Date(dateFrom) : undefined,
-      dateTo: dateTo ? new Date(dateTo) : undefined,
+      dateFrom: dateFrom
+        ? new Date(dateFrom)
+        : undefined,
+      dateTo: dateTo
+        ? new Date(dateTo)
+        : undefined,
     });
   }
 
   @Get(':id')
-  async getLogById(
+  @ApiOperation({
+    summary: 'Get a single audit log',
+  })
+  getLogById(
     @Req() request: AuthenticatedRequest,
     @Param('id') id: string,
   ) {
