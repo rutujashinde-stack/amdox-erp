@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import {
   NotificationChannel,
+  NotificationDeliveryStatus,
   NotificationEvent,
   Prisma,
 } from '../generated/prisma/client';
@@ -13,11 +14,51 @@ interface NotificationFilters {
   isRead?: boolean;
 }
 
+interface CreateNotificationInput {
+  tenantId: string;
+  userId?: string;
+  event: NotificationEvent;
+  title: string;
+  message: string;
+  data?: Prisma.InputJsonValue;
+}
+
 @Injectable()
 export class NotificationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+  ) {}
 
-  async getNotifications(filters: NotificationFilters) {
+  async createNotification(
+    input: CreateNotificationInput,
+  ) {
+    return this.prisma.notification.create({
+      data: {
+        tenantId: input.tenantId,
+        userId: input.userId,
+        event: input.event,
+        title: input.title,
+        message: input.message,
+        data: input.data,
+        deliveries: {
+          create: {
+            channel: NotificationChannel.IN_APP,
+            status:
+              NotificationDeliveryStatus.DELIVERED,
+            attempts: 1,
+            deliveredAt: new Date(),
+          },
+        },
+      },
+      include: {
+        deliveries: true,
+      },
+    });
+  }
+
+  async getNotifications(
+    filters: NotificationFilters,
+  ) {
     const where: Prisma.NotificationWhereInput = {
       tenantId: filters.tenantId,
     };
@@ -45,6 +86,7 @@ export class NotificationsService {
       orderBy: {
         createdAt: 'desc',
       },
+      take: 500,
     });
   }
 

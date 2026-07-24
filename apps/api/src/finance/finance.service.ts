@@ -1,9 +1,14 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+} from '@nestjs/common';
+import { AuditService } from '../audit/audit.service';
 import {
   AuditAction,
   AuditModule,
+  NotificationEvent,
 } from '../generated/prisma/client';
-import { AuditService } from '../audit/audit.service';
+import { NotificationsService } from '../notifications/notifications.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -11,6 +16,7 @@ export class FinanceService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly auditService: AuditService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async createAccount(
@@ -71,6 +77,19 @@ export class FinanceService {
       },
     });
 
+    await this.notificationsService.createNotification({
+      tenantId,
+      userId,
+      event: NotificationEvent.ACCOUNT_CREATED,
+      title: 'Finance account created',
+      message: `${account.name} (${account.code}) was added to the chart of accounts.`,
+      data: {
+        entityType: 'Account',
+        entityId: account.id,
+        href: '/finance',
+      },
+    });
+
     return account;
   }
 
@@ -103,7 +122,10 @@ export class FinanceService {
 
     const transactionDate = new Date(data.date);
 
-    if (!data.date || Number.isNaN(transactionDate.getTime())) {
+    if (
+      !data.date ||
+      Number.isNaN(transactionDate.getTime())
+    ) {
       throw new BadRequestException(
         'A valid transaction date is required.',
       );
@@ -116,13 +138,18 @@ export class FinanceService {
     }
 
     for (const line of data.lines) {
-      if (!line.debitAccountId || !line.creditAccountId) {
+      if (
+        !line.debitAccountId ||
+        !line.creditAccountId
+      ) {
         throw new BadRequestException(
           'Debit and credit accounts are required.',
         );
       }
 
-      if (line.debitAccountId === line.creditAccountId) {
+      if (
+        line.debitAccountId === line.creditAccountId
+      ) {
         throw new BadRequestException(
           'Debit and credit accounts must be different.',
         );
@@ -171,7 +198,8 @@ export class FinanceService {
           lines: {
             create: data.lines.map((line) => ({
               debitAccountId: line.debitAccountId,
-              creditAccountId: line.creditAccountId,
+              creditAccountId:
+                line.creditAccountId,
               amount: Number(line.amount),
               currency: line.currency || 'INR',
             })),
@@ -205,7 +233,8 @@ export class FinanceService {
             line.debitAccount?.code ?? null,
           debitAccountName:
             line.debitAccount?.name ?? null,
-          creditAccountId: line.creditAccountId,
+          creditAccountId:
+            line.creditAccountId,
           creditAccountCode:
             line.creditAccount?.code ?? null,
           creditAccountName:
@@ -216,6 +245,19 @@ export class FinanceService {
       },
       metadata: {
         source: 'Finance Journal Entry',
+      },
+    });
+
+    await this.notificationsService.createNotification({
+      tenantId,
+      userId,
+      event: NotificationEvent.TRANSACTION_CREATED,
+      title: 'Finance transaction recorded',
+      message: `${transaction.reference}: ${transaction.description}`,
+      data: {
+        entityType: 'Transaction',
+        entityId: transaction.id,
+        href: '/finance/transactions',
       },
     });
 
@@ -252,8 +294,12 @@ export class FinanceService {
     const amount = Number(data.amount);
     const dueDate = new Date(data.dueDate);
 
-    if (!['PAYABLE', 'RECEIVABLE'].includes(data.type)) {
-      throw new BadRequestException('Invalid invoice type.');
+    if (
+      !['PAYABLE', 'RECEIVABLE'].includes(data.type)
+    ) {
+      throw new BadRequestException(
+        'Invalid invoice type.',
+      );
     }
 
     if (!Number.isFinite(amount) || amount <= 0) {
@@ -302,6 +348,23 @@ export class FinanceService {
       },
     });
 
+    await this.notificationsService.createNotification({
+      tenantId,
+      userId,
+      event: NotificationEvent.INVOICE_CREATED,
+      title: 'Invoice created',
+      message: `${invoice.number} for ${
+        invoice.currency
+      } ${Number(invoice.amount).toLocaleString(
+        'en-IN',
+      )} was created.`,
+      data: {
+        entityType: 'Invoice',
+        entityId: invoice.id,
+        href: '/finance/invoices',
+      },
+    });
+
     return invoice;
   }
 
@@ -329,7 +392,9 @@ export class FinanceService {
       ]);
 
     const totalAssets = accounts
-      .filter((account) => account.type === 'ASSET')
+      .filter(
+        (account) => account.type === 'ASSET',
+      )
       .reduce(
         (sum, account) =>
           sum + Number(account.balance),
@@ -337,7 +402,10 @@ export class FinanceService {
       );
 
     const totalLiabilities = accounts
-      .filter((account) => account.type === 'LIABILITY')
+      .filter(
+        (account) =>
+          account.type === 'LIABILITY',
+      )
       .reduce(
         (sum, account) =>
           sum + Number(account.balance),

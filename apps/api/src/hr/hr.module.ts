@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
-import { PrismaModule } from '../prisma/prisma.module';
-import { AuthModule } from '../auth/auth.module';
 import { AuditModule } from '../audit/audit.module';
+import { AuthModule } from '../auth/auth.module';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { PrismaModule } from '../prisma/prisma.module';
 import { HrController } from './hr.controller';
 import { HrService } from './hr.service';
 
@@ -10,6 +11,7 @@ import { HrService } from './hr.service';
     PrismaModule,
     AuthModule,
     AuditModule,
+    NotificationsModule,
   ],
   controllers: [HrController],
   providers: [HrService],
