@@ -129,6 +129,14 @@ export default function Sidebar() {
           <Activity size={20} />
           Audit Activity
         </Link>
+        <Link
+         href="/supply-chain/reports"
+         className={subLinkClass(
+         '/supply-chain/reports',
+  )}
+>
+  AI Reports
+</Link>
       </nav>
 
       <button
