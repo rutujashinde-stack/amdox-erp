@@ -3,13 +3,13 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
-  LayoutDashboard,
-  Wallet,
-  Users,
-  Package,
-  Bell,
   Activity,
+  Bell,
+  LayoutDashboard,
   LogOut,
+  Package,
+  Users,
+  Wallet,
 } from 'lucide-react';
 import { useAuthStore } from '../../lib/authStore';
 
@@ -39,7 +39,7 @@ export default function Sidebar() {
 
   return (
     <aside className="sticky top-0 z-[100] flex h-screen w-64 shrink-0 flex-col bg-slate-950 p-6 text-white">
-      <a
+      <Link
         href="/dashboard"
         className="relative z-[110] mb-6 block cursor-pointer rounded-lg p-2 transition hover:bg-slate-900"
       >
@@ -50,7 +50,7 @@ export default function Sidebar() {
         <p className="mt-1 text-sm text-slate-400">
           Enterprise Resource Planning System
         </p>
-      </a>
+      </Link>
 
       <nav className="relative z-[110] space-y-2">
         <Link
@@ -88,33 +88,47 @@ export default function Sidebar() {
         <div className="ml-9 space-y-1 text-sm">
           <Link
             href="/supply-chain/inventory"
-            className={subLinkClass('/supply-chain/inventory')}
+            className={subLinkClass(
+              '/supply-chain/inventory',
+            )}
           >
             Inventory
           </Link>
 
           <Link
             href="/supply-chain/suppliers"
-            className={subLinkClass('/supply-chain/suppliers')}
+            className={subLinkClass(
+              '/supply-chain/suppliers',
+            )}
           >
             Suppliers
           </Link>
 
           <Link
             href="/supply-chain/orders"
-            className={subLinkClass('/supply-chain/orders')}
+            className={subLinkClass(
+              '/supply-chain/orders',
+            )}
           >
             Purchase Orders
           </Link>
         </div>
 
         <Link
-  href="/audit-logs"
-  className={mainLinkClass('/audit-logs')}
->
-  <Activity size={20} />
-  Audit Activity
-</Link>
+          href="/notifications"
+          className={mainLinkClass('/notifications')}
+        >
+          <Bell size={20} />
+          Notifications
+        </Link>
+
+        <Link
+          href="/audit-logs"
+          className={mainLinkClass('/audit-logs')}
+        >
+          <Activity size={20} />
+          Audit Activity
+        </Link>
       </nav>
 
       <button
