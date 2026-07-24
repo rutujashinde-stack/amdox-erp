@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   AlertTriangle,
   Bell,
@@ -35,10 +36,14 @@ interface NotificationItem {
   message: string;
   type: 'success' | 'warning' | 'info';
   icon: 'finance' | 'employee' | 'order' | 'stock';
+  href: string;
 }
 
 export default function NotificationsPage() {
-  const [finance, setFinance] = useState<FinanceDashboard>({});
+  const router = useRouter();
+
+  const [finance, setFinance] =
+    useState<FinanceDashboard>({});
   const [hr, setHr] = useState<HrDashboard>({});
   const [supplyChain, setSupplyChain] =
     useState<SupplyChainDashboard>({});
@@ -79,7 +84,9 @@ export default function NotificationsPage() {
   const notifications = useMemo<NotificationItem[]>(() => {
     const items: NotificationItem[] = [];
 
-    const lowStockItems = Number(supplyChain.lowStockItems ?? 0);
+    const lowStockItems = Number(
+      supplyChain.lowStockItems ?? 0,
+    );
     const totalEmployees = Number(hr.totalEmployees ?? 0);
     const totalPayrolls = Number(hr.totalPayrolls ?? 0);
     const pendingLeaves = Number(hr.pendingLeaves ?? 0);
@@ -99,14 +106,17 @@ export default function NotificationsPage() {
         } need restocking.`,
         type: 'warning',
         icon: 'stock',
+        href: '/supply-chain/inventory',
       });
     } else {
       items.push({
         id: 'stock-ok',
         title: 'Inventory status',
-        message: 'All products currently have sufficient stock.',
+        message:
+          'All products currently have sufficient stock.',
         type: 'success',
         icon: 'stock',
+        href: '/supply-chain/inventory',
       });
     }
 
@@ -118,6 +128,7 @@ export default function NotificationsPage() {
       } are currently registered in the ERP.`,
       type: 'info',
       icon: 'employee',
+      href: '/hr/employees',
     });
 
     items.push({
@@ -128,6 +139,7 @@ export default function NotificationsPage() {
       } have been processed.`,
       type: 'success',
       icon: 'employee',
+      href: '/hr/payroll',
     });
 
     if (pendingLeaves > 0) {
@@ -139,6 +151,7 @@ export default function NotificationsPage() {
         } waiting for review.`,
         type: 'warning',
         icon: 'employee',
+        href: '/hr/leaves',
       });
     }
 
@@ -150,6 +163,7 @@ export default function NotificationsPage() {
       } are available in the system.`,
       type: 'info',
       icon: 'order',
+      href: '/supply-chain/orders',
     });
 
     items.push({
@@ -160,26 +174,43 @@ export default function NotificationsPage() {
       } have been recorded.`,
       type: 'info',
       icon: 'finance',
+      href: '/finance/transactions',
     });
 
     return items;
   }, [finance, hr, supplyChain]);
 
   const unreadCount = notifications.filter(
-    (notification) => !readIds.includes(notification.id),
+    (notification) =>
+      !readIds.includes(notification.id),
   ).length;
 
   const markAsRead = (id: string) => {
     setReadIds((current) =>
-      current.includes(id) ? current : [...current, id],
+      current.includes(id)
+        ? current
+        : [...current, id],
     );
   };
 
   const markAllAsRead = () => {
-    setReadIds(notifications.map((notification) => notification.id));
+    setReadIds(
+      notifications.map(
+        (notification) => notification.id,
+      ),
+    );
   };
 
-  const getIcon = (icon: NotificationItem['icon']) => {
+  const openNotification = (
+    notification: NotificationItem,
+  ) => {
+    markAsRead(notification.id);
+    router.push(notification.href);
+  };
+
+  const getIcon = (
+    icon: NotificationItem['icon'],
+  ) => {
     if (icon === 'finance') {
       return <Wallet size={22} />;
     }
@@ -195,7 +226,9 @@ export default function NotificationsPage() {
     return <AlertTriangle size={22} />;
   };
 
-  const getCardClass = (type: NotificationItem['type']) => {
+  const getCardClass = (
+    type: NotificationItem['type'],
+  ) => {
     if (type === 'warning') {
       return 'border-yellow-200 bg-yellow-50';
     }
@@ -207,7 +240,9 @@ export default function NotificationsPage() {
     return 'border-blue-200 bg-blue-50';
   };
 
-  const getIconClass = (type: NotificationItem['type']) => {
+  const getIconClass = (
+    type: NotificationItem['type'],
+  ) => {
     if (type === 'warning') {
       return 'text-yellow-700';
     }
@@ -232,7 +267,8 @@ export default function NotificationsPage() {
           </div>
 
           <p className="mt-2 text-gray-600">
-            Live alerts and activity summaries from your ERP data.
+            Live alerts and activity summaries from your ERP
+            data.
           </p>
         </div>
 
@@ -273,12 +309,28 @@ export default function NotificationsPage() {
       {!loading && !error && (
         <div className="mt-8 space-y-4">
           {notifications.map((notification) => {
-            const isRead = readIds.includes(notification.id);
+            const isRead = readIds.includes(
+              notification.id,
+            );
 
             return (
               <div
                 key={notification.id}
-                className={`rounded-xl border p-5 shadow-sm transition ${
+                role="button"
+                tabIndex={0}
+                onClick={() =>
+                  openNotification(notification)
+                }
+                onKeyDown={(event) => {
+                  if (
+                    event.key === 'Enter' ||
+                    event.key === ' '
+                  ) {
+                    event.preventDefault();
+                    openNotification(notification);
+                  }
+                }}
+                className={`cursor-pointer rounded-xl border p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md ${
                   getCardClass(notification.type)
                 } ${isRead ? 'opacity-60' : ''}`}
               >
@@ -308,7 +360,7 @@ export default function NotificationsPage() {
                       </p>
 
                       <p className="mt-2 text-sm text-gray-500">
-                        Generated from live ERP data
+                        Click to view related records
                       </p>
                     </div>
                   </div>
@@ -321,7 +373,10 @@ export default function NotificationsPage() {
                   ) : (
                     <button
                       type="button"
-                      onClick={() => markAsRead(notification.id)}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        markAsRead(notification.id);
+                      }}
                       className="rounded-lg bg-white px-4 py-2 text-sm font-medium text-slate-700 shadow hover:bg-slate-100"
                     >
                       Mark as Read
